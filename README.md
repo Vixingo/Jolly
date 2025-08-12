@@ -72,7 +72,15 @@ VITE_FACEBOOK_PIXEL_ID=your_fb_pixel_id
 
 1. Create a new Supabase project at [supabase.com](https://supabase.com)
 2. Get your project URL and anon key from the project settings
-3. Run the following SQL in your Supabase SQL editor:
+3. Run the database setup SQL in your Supabase SQL editor:
+
+**Option A: Complete Setup (Recommended)**
+Run the contents of `database-setup.sql` for a full setup with all RLS policies.
+
+**Option B: Simple Setup (If you encounter policy conflicts)**
+If you get policy conflicts, use `database-setup-simple.sql` instead. This creates a minimal working setup.
+
+**Note**: The simple setup creates basic policies first, then you add admin policies after creating your admin user.
 
 ```sql
 -- Create users table
@@ -80,10 +88,14 @@ CREATE TABLE users (
   id UUID REFERENCES auth.users(id) PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT NOT NULL,
-  role TEXT DEFAULT 'customer' CHECK (role IN ('admin', 'customer')),
+  role TEXT DEFAULT 'customer' CHECK (role IN ('admin', 'user', 'customer')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Note: This is a simplified users table for basic user management.
+-- The User Management system in the admin dashboard works with these fields only.
+-- For additional fields like phone, avatar_url, status, etc., you would need to extend this table.
 
 -- Create products table
 CREATE TABLE products (
@@ -131,6 +143,20 @@ ALTER TABLE pixel_tracking ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
 
+-- Admin policies for user management
+CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+);
+
 CREATE POLICY "Products are viewable by everyone" ON products FOR SELECT USING (true);
 CREATE POLICY "Only admins can modify products" ON products FOR ALL USING (
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
@@ -153,9 +179,40 @@ VALUES (
   'Admin User',
   'admin'
 );
+
+-- Important: Make sure to replace 'your-admin-email@example.com' with your actual email
+-- and ensure you've signed up through the regular signup process first
 ```
 
-### 4. Start Development Server
+### 4. Troubleshooting
+
+#### RLS Policy Issues
+If you encounter "row-level security policy" errors when trying to manage users:
+
+1. **Ensure you're logged in as an admin user**
+2. **Check that the RLS policies are properly created** - run the SQL above in your Supabase SQL editor
+3. **Verify your user has the 'admin' role** in the users table
+4. **Make sure you've signed up first** - the admin user must exist in both `auth.users` and `users` tables
+
+#### Policy Conflicts
+If you get errors like "policy already exists":
+
+1. **Use the simple setup script** (`database-setup-simple.sql`) instead
+2. **Or manually drop conflicting policies** in your Supabase SQL editor:
+   ```sql
+   DROP POLICY IF EXISTS "policy_name" ON table_name;
+   ```
+3. **Check existing policies** with:
+   ```sql
+   SELECT schemaname, tablename, policyname FROM pg_policies;
+   ```
+
+#### Common Issues
+- **"new row violates row-level security policy"**: RLS policies not set up correctly
+- **"permission denied"**: User doesn't have admin role
+- **"relation does not exist"**: Tables not created yet
+
+### 5. Start Development Server
 
 ```bash
 pnpm dev

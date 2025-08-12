@@ -13,6 +13,7 @@ import AdminProducts from './pages/admin/Products'
 import AdminUsers from './pages/admin/Users'
 import AdminPixels from './pages/admin/Pixels'
 import LoginPage from './pages/LoginPage'
+import SignupPage from './pages/SignupPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import './App.css'
 
@@ -28,6 +29,7 @@ function App() {
                 <Route index element={<HomePage />} />
                 <Route path="product/:id" element={<ProductPage />} />
                 <Route path="login" element={<LoginPage />} />
+                <Route path="signup" element={<SignupPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="thank-you" element={<ThankYouPage />} />
               </Route>

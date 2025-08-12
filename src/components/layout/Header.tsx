@@ -178,9 +178,14 @@ export default function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild size="sm">
-                <Link to="/login">Sign In</Link>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button asChild size="sm" variant="ghost">
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button asChild size="sm">
+                  <Link to="/signup">Sign Up</Link>
+                </Button>
+              </div>
             )}
 
             {/* Mobile menu button */}
