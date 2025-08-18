@@ -100,36 +100,33 @@ END $$;
 CREATE POLICY "Users can view own profile" ON users FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (auth.uid() = id);
 
+-- Create a security definer function to check admin status
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+DECLARE
+    is_admin BOOLEAN;
+BEGIN
+    SELECT (role = 'admin') INTO is_admin FROM users WHERE id = auth.uid();
+    RETURN COALESCE(is_admin, false);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- Admin policies for user management
-CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
-CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (is_admin());
+CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK (is_admin());
+CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (is_admin());
+CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (is_admin());
 
 -- RLS Policies for products table
 CREATE POLICY "Products are viewable by everyone" ON products FOR SELECT USING (true);
-CREATE POLICY "Only admins can modify products" ON products FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Only admins can modify products" ON products FOR ALL USING (is_admin());
 
 -- RLS Policies for orders table
 CREATE POLICY "Users can view own orders" ON orders FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Only admins can modify orders" ON orders FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Only admins can modify orders" ON orders FOR ALL USING (is_admin());
 
 -- RLS Policies for pixel_tracking table
-CREATE POLICY "Only admins can manage pixel tracking" ON pixel_tracking FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-);
+CREATE POLICY "Only admins can manage pixel tracking" ON pixel_tracking FOR ALL USING (is_admin());
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);

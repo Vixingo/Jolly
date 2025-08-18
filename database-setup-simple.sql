@@ -96,30 +96,27 @@ CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id);
 -- Step 7: Add admin policies AFTER creating your admin user
 -- Run this AFTER you've created your admin user above:
 
--- CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
--- CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
--- CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
--- CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
+-- Create a security definer function to check admin status
+-- CREATE OR REPLACE FUNCTION is_admin()
+-- RETURNS BOOLEAN AS $$
+-- DECLARE
+--     is_admin BOOLEAN;
+-- BEGIN
+--     SELECT (role = 'admin') INTO is_admin FROM users WHERE id = auth.uid();
+--     RETURN COALESCE(is_admin, false);
+-- END;
+-- $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- CREATE POLICY "Only admins can modify products" ON products FOR ALL USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
+-- CREATE POLICY "Admins can view all users" ON users FOR SELECT USING (is_admin());
+-- CREATE POLICY "Admins can insert users" ON users FOR INSERT WITH CHECK (is_admin());
+-- CREATE POLICY "Admins can update users" ON users FOR UPDATE USING (is_admin());
+-- CREATE POLICY "Admins can delete users" ON users FOR DELETE USING (is_admin());
 
--- CREATE POLICY "Only admins can modify orders" ON orders FOR ALL USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
+-- CREATE POLICY "Only admins can modify products" ON products FOR ALL USING (is_admin());
 
--- CREATE POLICY "Only admins can manage pixel tracking" ON pixel_tracking FOR ALL USING (
---   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
--- );
+-- CREATE POLICY "Only admins can modify orders" ON orders FOR ALL USING (is_admin());
+
+-- CREATE POLICY "Only admins can manage pixel tracking" ON pixel_tracking FOR ALL USING (is_admin());
 
 -- Note: This script creates a minimal working setup.
 -- Run the admin policies (Step 7) only after you've created your admin user.

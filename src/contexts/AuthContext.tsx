@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { useAppDispatch } from '../store/hooks'
 import { setUser, setProfile, setLoading, setError } from '../store/slices/authSlice'
+import { initializeStorage } from '../lib/init-storage'
 
 interface AuthContextType {
   user: User | null
@@ -22,6 +23,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const dispatch = useAppDispatch()
 
   useEffect(() => {
+    // Initialize storage buckets
+    initializeStorage().catch(error => {
+      console.error('Failed to initialize storage:', error)
+    })
+    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {

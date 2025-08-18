@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { store } from './store'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/layout/Layout'
+import AdminLayout from './components/layout/AdminLayout'
 import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -12,6 +13,8 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminUsers from './pages/admin/Users'
 import AdminPixels from './pages/admin/Pixels'
+import AdminSettings from './pages/admin/Settings'
+import FileUploads from './pages/admin/FileUploads'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
@@ -37,13 +40,15 @@ function App() {
               {/* Admin routes */}
               <Route path="/admin" element={
                 <ProtectedRoute requireAdmin>
-                  <Layout />
+                  <AdminLayout />
                 </ProtectedRoute>
               }>
                 <Route index element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="pixels" element={<AdminPixels />} />
+                <Route path="settings" element={<AdminSettings />} />
+                <Route path="file-uploads" element={<FileUploads />} />
               </Route>
             </Routes>
             

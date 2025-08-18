@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/utils'
+import { deleteFile, getFilePathFromUrl } from '../../lib/storage-utils'
+import { uploadProductImages, deleteProductImages } from '../../lib/product-image-utils'
 import ProductModal from '../../components/admin/ProductModal'
 import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal'
 import type { Product } from '../../store/slices/productsSlice'
@@ -74,6 +76,10 @@ export default function AdminProducts() {
     if (!selectedProduct) return
 
     try {
+      // First, delete the product images from storage using our utility
+      await deleteProductImages(selectedProduct.id)
+      
+      // Then delete the product from the database
       const { error } = await supabase
         .from('products')
         .delete()
@@ -92,12 +98,16 @@ export default function AdminProducts() {
     }
   }
 
-  const handleSaveProduct = async (productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleSaveProduct = async (productData: any) => {
     try {
+      // Extract tempFiles from productData
+      const { tempFiles, ...productDataWithoutFiles } = productData
+      
       if (modalMode === 'create') {
+        // First create the product without images
         const { data, error } = await supabase
           .from('products')
-          .insert([productData])
+          .insert([productDataWithoutFiles])
           .select()
           .single()
 
@@ -105,12 +115,48 @@ export default function AdminProducts() {
           console.error('Error creating product:', error)
           return
         }
+        
+        // If we have temporary files, upload them now that we have a product ID
+        if (tempFiles && tempFiles.length > 0) {
+          const uploadedUrls = await uploadProductImages(data.id, tempFiles)
+          
+          // Update the product with the image URLs
+          if (uploadedUrls.length > 0) {
+            const { data: updatedData, error: updateError } = await supabase
+              .from('products')
+              .update({ images: uploadedUrls })
+              .eq('id', data.id)
+              .select()
+              .single()
+              
+            if (updateError) {
+              console.error('Error updating product with images:', updateError)
+            } else {
+              // Use the updated data with images
+              dispatch(addProduct(updatedData))
+              setIsProductModalOpen(false)
+              setSelectedProduct(null)
+              return
+            }
+          }
+        }
 
         dispatch(addProduct(data))
       } else if (modalMode === 'edit' && selectedProduct) {
+        // For edit mode, handle any new temporary files
+        if (tempFiles && tempFiles.length > 0) {
+          const uploadedUrls = await uploadProductImages(selectedProduct.id, tempFiles)
+          
+          // Add new URLs to existing images
+          productDataWithoutFiles.images = [
+            ...productDataWithoutFiles.images,
+            ...uploadedUrls
+          ]
+        }
+        
         const { data, error } = await supabase
           .from('products')
-          .update(productData)
+          .update(productDataWithoutFiles)
           .eq('id', selectedProduct.id)
           .select()
           .single()

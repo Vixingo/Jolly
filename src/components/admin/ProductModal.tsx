@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { X, Plus, Trash2 } from 'lucide-react'
 import { formatCurrency } from '../../lib/utils'
+import { uploadProductImages } from '../../lib/product-image-utils'
 
 interface Product {
   id: string
@@ -23,7 +24,7 @@ interface Product {
 interface ProductModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (productData: Omit<Product, 'id' | 'created_at' | 'updated_at'>) => void
+  onSave: (productData: Omit<Product, 'id' | 'created_at' | 'updated_at'> & { tempFiles?: File[] }) => void
   product: Product | null
   mode: 'create' | 'edit'
 }
@@ -49,7 +50,8 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
     price: '',
     category: '',
     stock: '',
-    images: [] as string[]
+    images: [] as string[],
+    tempFiles: [] as File[]
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -62,7 +64,8 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
         price: product.price.toString(),
         category: product.category,
         stock: product.stock.toString(),
-        images: product.images
+        images: product.images,
+        tempFiles: []
       })
     } else {
       setFormData({
@@ -71,7 +74,8 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
         price: '',
         category: '',
         stock: '',
-        images: []
+        images: [],
+        tempFiles: []
       })
     }
     setErrors({})
@@ -112,13 +116,17 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
     setIsLoading(true)
     
     try {
+      // Filter out temporary preview URLs from images array
+      const realImages = mode === 'edit' ? formData.images : []
+      
       const productData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
         category: formData.category,
         stock: parseInt(formData.stock),
-        images: formData.images
+        images: realImages,
+        tempFiles: formData.tempFiles // Pass temporary files to parent component
       }
 
       await onSave(productData)
@@ -129,15 +137,41 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
     }
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
-    if (files) {
-      // For now, we'll use placeholder URLs. In a real app, you'd upload to Supabase Storage
-      const newImages = Array.from(files).map(file => URL.createObjectURL(file))
-      setFormData(prev => ({
-        ...prev,
-        images: [...prev.images, ...newImages]
-      }))
+    if (!files || files.length === 0) return
+    
+    setIsLoading(true)
+    
+    try {
+      // For new products, we'll temporarily store the files and upload them after product creation
+      if (mode === 'create' || !product?.id) {
+        // Just preview the images for now
+        const previewUrls = Array.from(files).map(file => URL.createObjectURL(file))
+        
+        setFormData(prev => ({
+          ...prev,
+          // Store the File objects in a temporary field
+          tempFiles: [...(prev.tempFiles || []), ...Array.from(files)],
+          // Add preview URLs to images array for display
+          images: [...prev.images, ...previewUrls]
+        }))
+      } else {
+        // For existing products, upload directly
+        const uploadedImageUrls = await uploadProductImages(product.id, Array.from(files))
+        
+        // Update form data with the new image URLs
+        if (uploadedImageUrls.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, ...uploadedImageUrls]
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('Error handling image upload:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
