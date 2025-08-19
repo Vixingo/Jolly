@@ -83,7 +83,7 @@ export interface Database {
       orders: {
         Row: {
           id: string
-          user_id: string
+          user_id: string | null  // Make user_id nullable
           status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total: number
           items: any[]
@@ -93,7 +93,7 @@ export interface Database {
         }
         Insert: {
           id?: string
-          user_id: string
+          user_id?: string | null  // Make user_id optional and nullable
           status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total: number
           items: any[]
@@ -103,7 +103,7 @@ export interface Database {
         }
         Update: {
           id?: string
-          user_id?: string
+          user_id?: string | null  // Make user_id optional and nullable
           status?: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total?: number
           items?: any[]
