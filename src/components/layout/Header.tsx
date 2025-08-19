@@ -134,7 +134,7 @@ export default function Header() {
             </Button>
 
             {/* User menu */}
-            {user ? (
+            {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
@@ -177,15 +177,6 @@ export default function Header() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button asChild size="sm" variant="ghost">
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button asChild size="sm">
-                  <Link to="/signup">Sign Up</Link>
-                </Button>
-              </div>
             )}
 
             {/* Mobile menu button */}

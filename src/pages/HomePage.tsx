@@ -17,9 +17,15 @@ import { Link } from 'react-router-dom'
 import { formatCurrency, truncateText } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 
+// Add these imports at the top
+import { useNavigate } from 'react-router-dom'
+import { setCartOpen } from '../store/slices/uiSlice'
+import { toast } from 'sonner'
+
 export default function HomePage() {
   const dispatch = useAppDispatch()
   const { products, categories, isLoading } = useAppSelector(state => state.products)
+  const navigate = useNavigate()
 
   useEffect(() => {
     fetchProducts()
@@ -55,6 +61,31 @@ export default function HomePage() {
       quantity: 1,
       category: product.category
     }))
+
+    toast.success('Added to cart', {
+      position: 'top-center',
+      className: 'w-fit text-sm py-2 px-3'
+    })
+    
+    dispatch(setCartOpen(true))
+  }
+
+  const handleBuyNow = (product: any) => {
+    dispatch(addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      quantity: 1,
+      category: product.category
+    }))
+
+    toast.success('Proceeding to checkout', {
+      position: 'bottom-left',
+      className: 'lg:ml-4'
+    })
+    
+    navigate('/checkout')
   }
 
   const featuredProducts = products.slice(0, 6)
@@ -167,7 +198,11 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+              <Card 
+                key={product.id} 
+                className="group hover:shadow-lg transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/product/${product.id}`)}
+              >
                 <CardHeader className="p-0">
                   <div className="relative overflow-hidden rounded-t-lg">
                     <img
@@ -221,19 +256,24 @@ export default function HomePage() {
                     <Button 
                       variant="outline" 
                       className="flex-1"
-                      asChild
-                    >
-                      <Link to={`/product/${product.id}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                    <Button 
-                      onClick={() => handleAddToCart(product)}
-                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleAddToCart(product)
+                      }}
                       disabled={product.stock === 0}
                     >
                       <ShoppingCart className="h-4 w-4 mr-2" />
                       {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                    </Button>
+                    <Button 
+                      className="flex-1"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleBuyNow(product)
+                      }}
+                      disabled={product.stock === 0}
+                    >
+                      Buy Now
                     </Button>
                   </div>
                 </CardFooter>

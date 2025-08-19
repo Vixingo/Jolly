@@ -19,6 +19,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import './App.css'
+import ProductsPage from './pages/ProductsPage'
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
+                <Route path="products" element={<ProductsPage />} />
                 <Route path="product/:id" element={<ProductPage />} />
                 <Route path="login" element={<LoginPage />} />
                 <Route path="signup" element={<SignupPage />} />

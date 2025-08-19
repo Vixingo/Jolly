@@ -115,7 +115,7 @@ export default function CartSidebar() {
                             handleQuantityChange(item.id, value)
                           }
                         }}
-                        className="h-6 w-12 text-center text-xs"
+                        className="h-6 w-12 text-center text-xs [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         min="1"
                       />
                       
