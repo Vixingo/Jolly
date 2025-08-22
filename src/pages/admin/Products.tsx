@@ -201,10 +201,13 @@ export default function AdminProducts() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Product Management</h1>
-        <Button onClick={handleCreateProduct}>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Product Management</h1>
+          <p className="text-muted-foreground mt-1">Manage your store's product inventory</p>
+        </div>
+        <Button onClick={handleCreateProduct} size="sm" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add Product
         </Button>
@@ -212,11 +215,14 @@ export default function AdminProducts() {
 
       {/* Filters and Search */}
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Filters & Search</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Filters & Search
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Search Products</label>
               <div className="relative">
@@ -235,7 +241,7 @@ export default function AdminProducts() {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full p-2 border border-input rounded-md bg-background"
+                className="w-full p-2 border border-input rounded-md bg-background focus:ring-2 focus:ring-ring focus:ring-offset-1"
               >
                 {categories.map(category => (
                   <option key={category} value={category}>
@@ -247,7 +253,8 @@ export default function AdminProducts() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Total Products</label>
-              <div className="p-2 bg-muted rounded-md text-center font-semibold">
+              <div className="p-2 bg-muted rounded-md text-center font-semibold flex items-center justify-center gap-2">
+                <Package className="h-4 w-4" />
                 {filteredProducts.length}
               </div>
             </div>
@@ -256,42 +263,38 @@ export default function AdminProducts() {
       </Card>
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
         {filteredProducts.map((product) => (
-          <Card key={product.id} className="group hover:shadow-lg transition-all duration-300">
+          <Card key={product.id} className="group hover:shadow-lg transition-all duration-300 flex flex-col h-full">
             <CardHeader className="p-0">
               <div className="relative overflow-hidden rounded-t-lg">
                 <img
                   src={product.images[0] || '/placeholder-product.jpg'}
                   alt={product.name}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
                 />
-                <Badge 
-                  variant="secondary" 
-                  className="absolute top-3 left-3"
-                >
-                  {product.category}
-                </Badge>
-                {product.stock < 10 && product.stock > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute top-3 right-3"
-                  >
-                    Low Stock
+                <div className="absolute top-3 left-3 flex flex-wrap gap-2">
+                  <Badge variant="secondary">
+                    {product.category}
                   </Badge>
-                )}
-                {product.stock === 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute top-3 right-3"
-                  >
-                    Out of Stock
-                  </Badge>
-                )}
+                </div>
+                <div className="absolute top-3 right-3">
+                  {product.stock < 10 && product.stock > 0 && (
+                    <Badge variant="destructive">
+                      Low Stock
+                    </Badge>
+                  )}
+                  {product.stock === 0 && (
+                    <Badge variant="destructive">
+                      Out of Stock
+                    </Badge>
+                  )}
+                </div>
               </div>
             </CardHeader>
             
-            <CardContent className="p-4">
+            <CardContent className="p-4 flex-grow">
               <h3 className="font-semibold text-lg text-foreground mb-2 line-clamp-2">
                 {product.name}
               </h3>
@@ -299,17 +302,17 @@ export default function AdminProducts() {
                 {product.description}
               </p>
               
-              <div className="space-y-2">
+              <div className="space-y-2 mt-auto">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-bold text-primary">
                     {formatCurrency(product.price)}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm bg-muted px-2 py-1 rounded-md">
                     Stock: {product.stock}
                   </span>
                 </div>
                 
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between text-xs text-muted-foreground gap-1">
                   <span>Created: {new Date(product.created_at).toLocaleDateString()}</span>
                   <span>Updated: {new Date(product.updated_at).toLocaleDateString()}</span>
                 </div>
@@ -322,7 +325,7 @@ export default function AdminProducts() {
                   variant="outline" 
                   size="sm"
                   onClick={() => handleEditProduct(product)}
-                  className="flex-1"
+                  className="flex-1 hover:bg-primary hover:text-primary-foreground"
                 >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
@@ -331,7 +334,7 @@ export default function AdminProducts() {
                   variant="outline" 
                   size="sm"
                   onClick={() => handleDeleteProduct(product)}
-                  className="flex-1"
+                  className="flex-1 hover:bg-destructive hover:text-destructive-foreground"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete
@@ -343,20 +346,30 @@ export default function AdminProducts() {
       </div>
 
       {filteredProducts.length === 0 && (
-        <Card className="text-center py-12">
-          <CardContent>
-            <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+        <Card className="text-center py-12 border-dashed">
+          <CardContent className="flex flex-col items-center justify-center">
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
+              <Package className="h-10 w-10 text-muted-foreground" />
+            </div>
             <h3 className="text-xl font-semibold mb-2">No products found</h3>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
               {searchQuery || selectedCategory !== 'all' 
-                ? 'Try adjusting your search or filters'
-                : 'Get started by adding your first product'
+                ? 'Try adjusting your search or filters to find what you\'re looking for.'
+                : 'Your product catalog is empty. Get started by adding your first product.'
               }
             </p>
             {!searchQuery && selectedCategory === 'all' && (
-              <Button onClick={handleCreateProduct}>
+              <Button onClick={handleCreateProduct} className="animate-pulse">
                 <Plus className="h-4 w-4 mr-2" />
                 Add First Product
+              </Button>
+            )}
+            {(searchQuery || selectedCategory !== 'all') && (
+              <Button variant="outline" onClick={() => {
+                setSearchQuery('')
+                setSelectedCategory('all')
+              }}>
+                Clear Filters
               </Button>
             )}
           </CardContent>

@@ -5,15 +5,34 @@ import { Button } from '../components/ui/button'
 import { CheckCircle, Package, ArrowRight } from 'lucide-react'
 import { formatCurrency } from '../lib/utils'
 
+interface OrderItem {
+  product_id: string
+  product_name: string
+  quantity: number
+  price: number
+  subtotal: number
+}
+
+interface Address {
+  full_name: string
+  address_line1: string
+  address_line2?: string
+  city: string
+  state: string
+  postal_code: string
+  country: string
+}
+
 interface OrderDetails {
   id: string
   total: number
   status: string
-  shipping_address: {
-    fullName: string
-    phoneNumber: string
-    address: string
-  }
+  payment_status: string
+  items: OrderItem[]
+  shipping_address: Address
+  billing_address?: Address
+  tracking_number?: string
+  created_at: string
 }
 
 export default function ThankYouPage() {
@@ -56,11 +75,31 @@ export default function ThankYouPage() {
                   <p className="font-mono mt-1">{orderDetails.id}</p>
                 </div>
                 <div className="bg-white/50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-gray-500">Date</p>
+                  <p className="mt-1">{new Date(orderDetails.created_at).toLocaleDateString()}</p>
+                </div>
+                <div className="bg-white/50 p-3 rounded-lg">
                   <p className="text-sm font-medium text-gray-500">Status</p>
                   <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-1">
-                    {orderDetails.status}
+                    {orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1)}
                   </p>
                 </div>
+                <div className="bg-white/50 p-3 rounded-lg">
+                  <p className="text-sm font-medium text-gray-500">Payment Status</p>
+                  <p className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1 ${
+                    orderDetails.payment_status === 'paid' ? 'bg-green-100 text-green-800' : 
+                    orderDetails.payment_status === 'unpaid' ? 'bg-red-100 text-red-800' : 
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {orderDetails.payment_status.charAt(0).toUpperCase() + orderDetails.payment_status.slice(1)}
+                  </p>
+                </div>
+                {orderDetails.tracking_number && (
+                  <div className="col-span-full bg-white/50 p-3 rounded-lg">
+                    <p className="text-sm font-medium text-gray-500">Tracking Number</p>
+                    <p className="font-mono mt-1">{orderDetails.tracking_number}</p>
+                  </div>
+                )}
                 <div className="col-span-full bg-white/50 p-3 rounded-lg">
                   <p className="text-sm font-medium text-gray-500">Total Amount</p>
                   <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{formatCurrency(orderDetails.total)}</p>
@@ -68,16 +107,61 @@ export default function ThankYouPage() {
               </div>
             </div>
 
+            {/* Order Items */}
+            <div className="border-t border-gray-200 pt-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 px-1">Order Items</h4>
+              <div className="bg-gray-50 rounded-xl p-4 sm:p-6">
+                <div className="space-y-3">
+                  {orderDetails.items.map((item, index) => (
+                    <div key={index} className="bg-white/50 p-3 rounded-lg flex justify-between items-center">
+                      <div>
+                        <p className="font-medium text-gray-900">{item.product_name}</p>
+                        <p className="text-sm text-gray-600">Quantity: {item.quantity} × {formatCurrency(item.price)}</p>
+                      </div>
+                      <p className="font-semibold text-gray-900">{formatCurrency(item.subtotal)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Shipping Details */}
             <div className="border-t border-gray-200 pt-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-4 px-1">Shipping Details</h4>
               <div className="bg-gray-50 rounded-xl p-4 sm:p-6 space-y-3">
                 <div className="bg-white/50 p-3 rounded-lg">
-                  <p className="text-gray-900 font-medium">{orderDetails.shipping_address.fullName}</p>
-                  <p className="text-gray-600 mt-1">{orderDetails.shipping_address.phoneNumber}</p>
-                  <p className="text-gray-600 whitespace-pre-line mt-2">{orderDetails.shipping_address.address}</p>
+                  <p className="text-gray-900 font-medium">{orderDetails.shipping_address.full_name}</p>
+                  <p className="text-gray-600 mt-1">{orderDetails.shipping_address.address_line1}</p>
+                  {orderDetails.shipping_address.address_line2 && (
+                    <p className="text-gray-600">{orderDetails.shipping_address.address_line2}</p>
+                  )}
+                  <p className="text-gray-600 mt-1">
+                    {orderDetails.shipping_address.city}, {orderDetails.shipping_address.state} {orderDetails.shipping_address.postal_code}
+                  </p>
+                  <p className="text-gray-600">{orderDetails.shipping_address.country}</p>
                 </div>
               </div>
             </div>
+
+            {/* Billing Address */}
+            {orderDetails.billing_address && (
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-lg font-semibold text-gray-900 mb-4 px-1">Billing Details</h4>
+                <div className="bg-gray-50 rounded-xl p-4 sm:p-6 space-y-3">
+                  <div className="bg-white/50 p-3 rounded-lg">
+                    <p className="text-gray-900 font-medium">{orderDetails.billing_address.full_name}</p>
+                    <p className="text-gray-600 mt-1">{orderDetails.billing_address.address_line1}</p>
+                    {orderDetails.billing_address.address_line2 && (
+                      <p className="text-gray-600">{orderDetails.billing_address.address_line2}</p>
+                    )}
+                    <p className="text-gray-600 mt-1">
+                      {orderDetails.billing_address.city}, {orderDetails.billing_address.state} {orderDetails.billing_address.postal_code}
+                    </p>
+                    <p className="text-gray-600">{orderDetails.billing_address.country}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="text-center pt-4 sm:pt-6">
               <Button 

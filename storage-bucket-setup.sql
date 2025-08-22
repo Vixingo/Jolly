@@ -69,7 +69,7 @@ CREATE POLICY "Admins can delete objects in any bucket"
 -- Allow everyone to view objects in public buckets
 CREATE POLICY "Public objects are viewable by everyone" 
   ON storage.objects FOR SELECT 
-  USING (bucket_id IN ('product-images', 'user-uploads'));
+  USING (bucket_id IN ('product-images', 'user-uploads', 'store-logos'));
 
 -- Create product-images bucket if it doesn't exist
 INSERT INTO storage.buckets (id, name, public)
@@ -79,6 +79,11 @@ ON CONFLICT (id) DO NOTHING;
 -- Create user-uploads bucket if it doesn't exist
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('user-uploads', 'user-uploads', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Create store-logos bucket if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('store-logos', 'store-logos', true)
 ON CONFLICT (id) DO NOTHING;
 
 COMMIT;

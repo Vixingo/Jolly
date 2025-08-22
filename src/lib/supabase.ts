@@ -88,6 +88,9 @@ export interface Database {
           total: number
           items: any[]
           shipping_address: any
+          billing_address: any
+          payment_status: 'paid' | 'unpaid' | 'refunded'
+          tracking_number: string | null
           created_at: string
           updated_at: string
         }
@@ -98,6 +101,9 @@ export interface Database {
           total: number
           items: any[]
           shipping_address: any
+          billing_address?: any
+          payment_status?: 'paid' | 'unpaid' | 'refunded'
+          tracking_number?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -108,6 +114,9 @@ export interface Database {
           total?: number
           items?: any[]
           shipping_address?: any
+          billing_address?: any
+          payment_status?: 'paid' | 'unpaid' | 'refunded'
+          tracking_number?: string | null
           created_at?: string
           updated_at?: string
         }

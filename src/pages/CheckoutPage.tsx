@@ -94,17 +94,31 @@ export default function CheckoutPage() {
     try {
       setIsLoading(true)
 
+      const addressData = {
+        full_name: formData.fullName,
+        address_line1: formData.address,
+        address_line2: '',
+        city: '',
+        state: '',
+        postal_code: '',
+        country: 'US'
+      }
+
       const orderDetails = {
         user_id: user?.id || null,
         total: finalTotal, // This already includes the delivery charge
-        items: items,
-        shipping_address: {
-          fullName: formData.fullName,
-          phoneNumber: formData.phoneNumber,
-          address: formData.address
-        },
-        status: 'pending',
-        created_at: new Date().toISOString()
+        items: items.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          subtotal: item.price * item.quantity
+        })),
+        shipping_address: addressData,
+        billing_address: addressData, // Use same address for billing
+        payment_status: 'unpaid' as const,
+        status: 'pending' as const,
+        tracking_number: null
       }
 
       const { data, error } = await supabase

@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
 import { Badge } from '../../components/ui/badge'
+import { Avatar, AvatarFallback } from '../../components/ui/avatar'
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '../../components/ui/select'
 import { 
   Users, 
   Search, 
@@ -10,9 +18,11 @@ import {
   Trash2,
   Shield,
   User,
+  UserRound,
   Mail,
   Calendar,
-  Plus
+  Plus,
+  X
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import UserModal from '../../components/admin/UserModal'
@@ -201,10 +211,13 @@ export default function AdminUsers() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">User Management</h1>
-        <Button onClick={handleCreateUser}>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">User Management</h1>
+          <p className="text-muted-foreground mt-1">Manage user accounts and permissions</p>
+        </div>
+        <Button onClick={handleCreateUser} size="sm" className="w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Add User
         </Button>
@@ -230,48 +243,56 @@ export default function AdminUsers() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-muted-foreground" />
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Users className="h-4 w-4 text-primary" />
+              </div>
               <span className="text-sm font-medium text-muted-foreground">Total Users</span>
             </div>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold mt-2">{users.length}</div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center space-x-2">
-              <Shield className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-full">
+                <Shield className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              </div>
               <span className="text-sm font-medium text-muted-foreground">Admins</span>
             </div>
-            <div className="text-2xl font-bold text-purple-600">
+            <div className="text-2xl font-bold mt-2 text-purple-600 dark:text-purple-400">
               {users.filter(u => u.role === 'admin').length}
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
               <span className="text-sm font-medium text-muted-foreground">Users</span>
             </div>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold mt-2 text-blue-600 dark:text-blue-400">
               {users.filter(u => u.role === 'user').length}
             </div>
           </CardContent>
         </Card>
         
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 md:p-6">
             <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-green-600" />
+              <div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-full">
+                <Users className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
               <span className="text-sm font-medium text-muted-foreground">Customers</span>
             </div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold mt-2 text-green-600 dark:text-green-400">
               {users.filter(u => u.role === 'customer').length}
             </div>
           </CardContent>
@@ -280,11 +301,14 @@ export default function AdminUsers() {
 
       {/* Filters and Search */}
       <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Filters & Search</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Filters & Search
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Search Users</label>
               <div className="relative">
@@ -300,22 +324,26 @@ export default function AdminUsers() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Role</label>
-              <select
+              <Select
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full p-2 border border-input rounded-md bg-background"
+                onValueChange={setSelectedRole}
               >
-                <option value="all">All Roles</option>
-                <option value="admin">Admin</option>
-                <option value="user">User</option>
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
+                  <SelectItem value="customer">Customer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            
-
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Results</label>
-              <div className="p-2 bg-muted rounded-md text-center font-semibold">
+              <div className="p-2 bg-muted rounded-md text-center font-semibold flex items-center justify-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
                 {filteredUsers.length}
               </div>
             </div>
@@ -325,18 +353,24 @@ export default function AdminUsers() {
 
       {/* Users Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Users ({filteredUsers.length})</CardTitle>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2">
+            <UserRound className="h-5 w-5" />
+            Users ({filteredUsers.length})
+          </CardTitle>
+          <CardDescription>
+            Manage user accounts and permissions
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-2 sm:mx-0">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
                   <th className="text-left p-3 font-medium">User</th>
-                  <th className="text-left p-3 font-medium">Role</th>
-                  <th className="text-left p-3 font-medium">Joined</th>
-                  <th className="text-left p-3 font-medium">Actions</th>
+                  <th className="text-left p-3 font-medium hidden sm:table-cell">Role</th>
+                  <th className="text-left p-3 font-medium hidden md:table-cell">Joined</th>
+                  <th className="text-right p-3 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -344,27 +378,52 @@ export default function AdminUsers() {
                   <tr key={user.id} className="border-b hover:bg-muted/50">
                     <td className="p-3">
                       <div className="flex items-center space-x-3">
-                                                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                           <span className="text-sm font-medium">
-                             {user.full_name.charAt(0).toUpperCase()}
-                           </span>
-                         </div>
+                        <Avatar className="h-10 w-10 border">
+                          <AvatarFallback className="bg-primary/10">
+                            {user.full_name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                         <div>
                           <div className="font-medium">{user.full_name}</div>
-                          <div className="text-sm text-muted-foreground flex items-center">
+                          <div className="text-xs text-muted-foreground flex items-center">
                             <Mail className="h-3 w-3 mr-1" />
                             {user.email}
+                          </div>
+                          <div className="sm:hidden mt-1">
+                            <Badge 
+                              variant="outline"
+                              className={user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800' : 
+                                        user.role === 'user' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800' : 
+                                        'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800'}
+                            >
+                              {user.role === 'admin' ? (
+                                <>
+                                  <Shield className="h-3 w-3 mr-1" />
+                                  Admin
+                                </>
+                              ) : user.role === 'user' ? (
+                                <>
+                                  <User className="h-3 w-3 mr-1" />
+                                  User
+                                </>
+                              ) : (
+                                <>
+                                  <Users className="h-3 w-3 mr-1" />
+                                  Customer
+                                </>
+                              )}
+                            </Badge>
                           </div>
                         </div>
                       </div>
                     </td>
                     
-                    <td className="p-3">
+                    <td className="p-3 hidden sm:table-cell">
                       <Badge 
-                        variant={user.role === 'admin' ? 'default' : 'secondary'}
-                        className={user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
-                                  user.role === 'user' ? 'bg-blue-100 text-blue-800' : 
-                                  'bg-green-100 text-green-800'}
+                        variant="outline"
+                        className={user.role === 'admin' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800' : 
+                                  user.role === 'user' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800' : 
+                                  'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800'}
                       >
                         {user.role === 'admin' ? (
                           <>
@@ -385,25 +444,27 @@ export default function AdminUsers() {
                       </Badge>
                     </td>
                     
-                    <td className="p-3 text-sm text-muted-foreground">
+                    <td className="p-3 text-sm text-muted-foreground hidden md:table-cell">
                       <div className="flex items-center">
                         <Calendar className="h-3 w-3 mr-1" />
                         {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
                       </div>
                     </td>
                     
-                    <td className="p-3">
-                      <div className="flex items-center space-x-2">
+                    <td className="p-3 text-right">
+                      <div className="flex items-center justify-end space-x-2">
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-primary/10"
                           onClick={() => handleEditUser(user)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 hover:bg-destructive/10"
                           onClick={() => handleDeleteUser(user)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -418,15 +479,25 @@ export default function AdminUsers() {
 
           {filteredUsers.length === 0 && (
             <div className="text-center py-12">
-              <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-muted/30 flex items-center justify-center">
+                <Users className="h-10 w-10 text-muted-foreground" />
+              </div>
               <h3 className="text-xl font-semibold mb-2">No users found</h3>
-                          <p className="text-muted-foreground mb-4">
-              {searchQuery || selectedRole !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'Get started by adding your first user'
-              }
-            </p>
-            {!searchQuery && selectedRole === 'all' && (
+              <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
+                {searchQuery || selectedRole !== 'all'
+                  ? 'Try adjusting your search or filters'
+                  : 'Get started by adding your first user'
+                }
+              </p>
+              {searchQuery || selectedRole !== 'all' ? (
+                <Button variant="outline" onClick={() => {
+                  setSearchQuery('');
+                  setSelectedRole('all');
+                }}>
+                  <X className="h-4 w-4 mr-2" />
+                  Clear Filters
+                </Button>
+              ) : (
                 <Button onClick={handleCreateUser}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add First User
