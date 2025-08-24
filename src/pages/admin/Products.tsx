@@ -13,7 +13,7 @@ import {
   Trash2
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency } from '../../lib/utils'
+import { useFormatCurrency } from '../../lib/utils'
 import { deleteFile, getFilePathFromUrl } from '../../lib/storage-utils'
 import { uploadProductImages, deleteProductImages } from '../../lib/product-image-utils'
 import ProductModal from '../../components/admin/ProductModal'
@@ -29,6 +29,7 @@ export default function AdminProducts() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create')
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     fetchProducts()

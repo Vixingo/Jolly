@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { CheckCircle, Package, ArrowRight } from 'lucide-react'
-import { formatCurrency } from '../lib/utils'
+import { useFormatCurrency } from '../lib/utils'
 
 interface OrderItem {
   product_id: string
@@ -39,6 +39,8 @@ export default function ThankYouPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
+  const [loading, setLoading] = useState(true)
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     if (!location.state?.orderDetails) {
@@ -46,6 +48,7 @@ export default function ThankYouPage() {
       return
     }
     setOrderDetails(location.state.orderDetails)
+    setLoading(false)
   }, [])
 
   if (!orderDetails) return null

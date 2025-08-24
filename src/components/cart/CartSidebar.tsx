@@ -14,12 +14,13 @@ import {
   ArrowRight
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatCurrency } from '../../lib/utils'
+import { useFormatCurrency } from '../../lib/utils'
 
 export default function CartSidebar() {
   const dispatch = useAppDispatch()
   const { cartOpen } = useAppSelector(state => state.ui)
   const { items, total, itemCount } = useAppSelector(state => state.cart)
+  const formatCurrency = useFormatCurrency()
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity <= 0) {

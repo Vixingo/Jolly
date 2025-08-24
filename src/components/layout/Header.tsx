@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { toggleCart, toggleSearch, toggleMobileMenu, toggleTheme } from '../../store/slices/uiSlice'
 import { useAuth } from '../../contexts/AuthContext'
+import { useStoreLogo, useStoreName } from '../../contexts/StoreSettingsContext'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { 
@@ -33,6 +34,8 @@ export default function Header() {
   }))
   
   const { user, profile, signOut } = useAuth()
+  const storeLogo = useStoreLogo()
+  const storeName = useStoreName()
   const location = useLocation()
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -56,9 +59,19 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <Package className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">Jolly</span>
+          <Link to="/" className="flex items-center">
+            {storeLogo ? (
+              <img 
+                src={storeLogo} 
+                alt={storeName} 
+                className="h-10 w-auto max-w-[200px] object-contain"
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Package className="h-8 w-8 text-primary" />
+                <span className="text-xl font-bold text-foreground">{storeName}</span>
+              </div>
+            )}
           </Link>
 
           {/* Desktop Navigation */}

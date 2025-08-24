@@ -15,7 +15,7 @@ import {
   ArrowUpDown
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
-import { formatCurrency } from '../../lib/utils'
+import { useFormatCurrency } from '../../lib/utils'
 import { 
   Table,
   TableBody, 
@@ -88,6 +88,7 @@ export default function AdminOrders() {
   const [activeTab, setActiveTab] = useState('all')
   
   const ordersPerPage = 10
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     fetchOrders()

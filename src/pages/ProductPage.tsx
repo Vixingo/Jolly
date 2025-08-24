@@ -5,12 +5,13 @@ import { Card, CardContent } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Package, ShoppingCart } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-import { formatCurrency } from '../lib/utils'
+import { useFormatCurrency } from '../lib/utils'
 import { addToCart } from '../store/slices/cartSlice'
 import { setCartOpen } from '../store/slices/uiSlice'
 import { toast } from 'sonner'
 import type { Product } from '../store/slices/productsSlice'
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
+import WhatsAppButton from '../components/support/WhatsAppButton'
 
 export default function ProductPage() {
   const { id } = useParams()
@@ -19,6 +20,7 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<string>('')
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     fetchProduct()
@@ -210,6 +212,9 @@ export default function ProductPage() {
           </Button>
         </div>
       </div>
+      
+      {/* WhatsApp Support Button */}
+      <WhatsAppButton message={`Hi! I have a question about ${product?.name || 'this product'}.`} />
     </div>
   )
 }

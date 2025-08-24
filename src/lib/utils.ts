@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { useStoreCurrency } from '../contexts/StoreSettingsContext'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -10,6 +11,20 @@ export function formatCurrency(amount: number): string {
     style: 'currency',
     currency: 'USD',
   }).format(amount)
+}
+
+// Format currency with specific currency code
+export function formatCurrencyWithCode(amount: number, currencyCode: string): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currencyCode,
+  }).format(amount)
+}
+
+// Custom hook to format currency using store settings
+export function useFormatCurrency() {
+  const currency = useStoreCurrency()
+  return (amount: number) => formatCurrencyWithCode(amount, currency)
 }
 
 export function generateId(): string {

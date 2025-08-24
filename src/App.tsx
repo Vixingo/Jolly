@@ -3,6 +3,7 @@ import { Provider } from 'react-redux'
 import { Toaster } from 'sonner'
 import { store } from './store'
 import { AuthProvider } from './contexts/AuthContext'
+import { StoreSettingsProvider } from './contexts/StoreSettingsContext'
 import Layout from './components/layout/Layout'
 import AdminLayout from './components/layout/AdminLayout'
 import HomePage from './pages/HomePage'
@@ -26,7 +27,8 @@ function App() {
   return (
     <Provider store={store}>
       <AuthProvider>
-        <Router>
+        <StoreSettingsProvider>
+          <Router>
           <div className="min-h-screen bg-background">
             <Routes>
               {/* Public routes */}
@@ -63,7 +65,8 @@ function App() {
               duration={5000}
             />
           </div>
-        </Router>
+          </Router>
+        </StoreSettingsProvider>
       </AuthProvider>
     </Provider>
   )

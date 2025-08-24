@@ -8,10 +8,11 @@ import { Badge } from '../components/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '../components/ui/card'
 import { Package, ShoppingCart, Filter } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { formatCurrency, truncateText } from '../lib/utils'
+import { useFormatCurrency, truncateText } from '../lib/utils'
 import { toast } from 'sonner'
 import { setCartOpen } from '../store/slices/uiSlice'
 import { supabase } from '../lib/supabase'
+import { InlineWhatsAppButton } from '../components/support/WhatsAppButton'
 
 export default function ProductsPage() {
   const navigate = useNavigate()
@@ -19,6 +20,7 @@ export default function ProductsPage() {
   const { products, categories, isLoading } = useAppSelector(state => state.products)
   const [searchParams, setSearchParams] = useSearchParams()
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all')
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     fetchProducts()
@@ -115,6 +117,7 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold">Our Products</h1>
           <div className="flex items-center gap-4">
+            <InlineWhatsAppButton message="Hi! I need help choosing the right product." />
             <Filter className="h-5 w-5 text-muted-foreground" />
             <select
               value={selectedCategory}

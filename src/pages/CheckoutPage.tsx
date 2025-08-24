@@ -10,6 +10,8 @@ import { supabase } from '../lib/supabase'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { clearCart } from '../store/slices/cartSlice'
+import { useFormatCurrency } from '../lib/utils'
+import WhatsAppButton from '../components/support/WhatsAppButton'
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -49,6 +51,7 @@ export default function CheckoutPage() {
     phoneNumber: '',
     address: ''
   })
+  const formatCurrency = useFormatCurrency()
 
   const validateField = (field: keyof CheckoutFormData, value: string) => {
     try {
@@ -228,33 +231,21 @@ export default function CheckoutPage() {
                         </div>
                         <span className="font-medium truncate max-w-[150px]">{item.name}</span>
                       </div>
-                      <span>{new Intl.NumberFormat('en-US', { 
-                        style: 'currency', 
-                        currency: 'USD' 
-                      }).format(item.price * item.quantity)}</span>
+                      <span>{formatCurrency(item.price * item.quantity)}</span>
                     </div>
                   ))}
                   <div className="border-t pt-2 mt-2">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span>{new Intl.NumberFormat('en-US', { 
-                        style: 'currency', 
-                        currency: 'USD' 
-                      }).format(total)}</span>
+                      <span>{formatCurrency(total)}</span>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
                       <span>Delivery Charge</span>
-                      <span>{new Intl.NumberFormat('en-US', { 
-                        style: 'currency', 
-                        currency: 'USD' 
-                      }).format(deliveryCharge)}</span>
+                      <span>{formatCurrency(deliveryCharge)}</span>
                     </div>
                     <div className="flex justify-between font-medium text-lg mt-2">
                       <span>Total</span>
-                      <span>{new Intl.NumberFormat('en-US', { 
-                        style: 'currency', 
-                        currency: 'USD' 
-                      }).format(finalTotal)}</span>
+                      <span>{formatCurrency(finalTotal)}</span>
                     </div>
                   </div>
                 </div>
@@ -268,10 +259,7 @@ export default function CheckoutPage() {
                   size="lg"
                   disabled={isLoading}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - ${new Intl.NumberFormat('en-US', { 
-                    style: 'currency', 
-                    currency: 'USD' 
-                  }).format(finalTotal)}`}
+                  {isLoading ? 'Processing...' : `Place Order - ${formatCurrency(finalTotal)}`}
                 </Button>
               </div>
 
@@ -298,6 +286,9 @@ export default function CheckoutPage() {
           40%, 60% { transform: translate3d(4px, 0, 0); }
         }
       `}</style>
+      
+      {/* WhatsApp Support Button */}
+      <WhatsAppButton message="Hi! I need help with my checkout process." />
     </div>
   )
 }

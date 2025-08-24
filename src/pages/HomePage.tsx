@@ -2,9 +2,11 @@ import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import { setProducts, setLoading, setError } from '../store/slices/productsSlice'
 import { addToCart } from '../store/slices/cartSlice'
+import { useStoreName, useStoreSettings } from '../contexts/StoreSettingsContext'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '../components/ui/card'
+import Footer from '../components/layout/Footer'
 import { 
   ArrowRight, 
   Star, 
@@ -14,7 +16,7 @@ import {
   Zap
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatCurrency, truncateText } from '../lib/utils'
+import { useFormatCurrency, truncateText } from '../lib/utils'
 import { supabase } from '../lib/supabase'
 
 // Add these imports at the top
@@ -26,6 +28,9 @@ export default function HomePage() {
   const dispatch = useAppDispatch()
   const { products, categories, isLoading } = useAppSelector(state => state.products)
   const navigate = useNavigate()
+  const storeName = useStoreName()
+  const { storeSettings } = useStoreSettings()
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     fetchProducts()
@@ -113,11 +118,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Welcome to{' '}
-            <span className="text-primary">Jolly</span>
+            <span className="text-primary">{storeName}</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Discover amazing products with exceptional quality and unbeatable prices. 
-            Shop with confidence and enjoy a seamless shopping experience.
+            {storeSettings?.store_description || 'Discover amazing products with exceptional quality and unbeatable prices. Shop with confidence and enjoy a seamless shopping experience.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="text-lg px-8 py-6">
@@ -305,6 +309,9 @@ export default function HomePage() {
           </Button>
         </div>
       </section>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 }

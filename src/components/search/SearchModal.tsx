@@ -12,7 +12,7 @@ import {
   TrendingUp
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { formatCurrency, debounce } from '../../lib/utils'
+import { useFormatCurrency, debounce } from '../../lib/utils'
 
 export default function SearchModal() {
   const dispatch = useAppDispatch()
@@ -20,6 +20,7 @@ export default function SearchModal() {
   const { searchQuery, filteredProducts, categories } = useAppSelector(state => state.products)
   const [localQuery, setLocalQuery] = useState('')
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     if (searchOpen) {

@@ -6,7 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { X, Plus, Trash2 } from 'lucide-react'
-import { formatCurrency } from '../../lib/utils'
+import { useFormatCurrency } from '../../lib/utils'
 import { uploadProductImages } from '../../lib/product-image-utils'
 
 interface Product {
@@ -55,6 +55,7 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(false)
+  const formatCurrency = useFormatCurrency()
 
   useEffect(() => {
     if (product && mode === 'edit') {
