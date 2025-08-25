@@ -8,8 +8,11 @@ import { Switch } from '../../components/ui/switch'
 import { Separator } from '../../components/ui/separator'
 import { Textarea } from '../../components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
-import { Settings, Bell, Lock, Store, Upload, X, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle } from 'lucide-react'
+import { Settings, Bell, Lock, Store, Upload, X, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Palette } from 'lucide-react'
 import { getStoreSettings, updateStoreSettings, uploadStoreLogo, deleteStoreLogo, CURRENCY_OPTIONS, type StoreSettings, type StoreSettingsFormData } from '../../lib/store-settings'
+import { ColorPicker } from '../../components/ui/color-picker'
+import { applyThemeColors, DEFAULT_THEME_COLORS } from '../../lib/theme-utils'
+import { useStoreSettings } from '../../contexts/StoreSettingsContext'
 import { toast } from 'sonner'
 
 export default function AdminSettings() {
@@ -30,7 +33,10 @@ export default function AdminSettings() {
     privacy_policy: '',
     terms_of_service: '',
     return_policy: '',
-    shipping_policy: ''
+    shipping_policy: '',
+    theme_primary_color: DEFAULT_THEME_COLORS.primary,
+    theme_secondary_color: DEFAULT_THEME_COLORS.secondary,
+    theme_accent_color: DEFAULT_THEME_COLORS.accent
   })
   
   const [currentLogo, setCurrentLogo] = useState<string | null>(null)
@@ -74,7 +80,10 @@ export default function AdminSettings() {
           privacy_policy: settings.privacy_policy || '',
           terms_of_service: settings.terms_of_service || '',
           return_policy: settings.return_policy || '',
-          shipping_policy: settings.shipping_policy || ''
+          shipping_policy: settings.shipping_policy || '',
+          theme_primary_color: settings.theme_primary_color || DEFAULT_THEME_COLORS.primary,
+          theme_secondary_color: settings.theme_secondary_color || DEFAULT_THEME_COLORS.secondary,
+          theme_accent_color: settings.theme_accent_color || DEFAULT_THEME_COLORS.accent
         })
         setCurrentLogo(settings.logo_url || null)
       }
@@ -191,16 +200,38 @@ export default function AdminSettings() {
       [setting]: !prev[setting]
     }))
   }
+
+  const handleThemeColorChange = (colorType: 'theme_primary_color' | 'theme_secondary_color' | 'theme_accent_color', color: string) => {
+    setStoreSettings(prev => {
+      const updated = {
+        ...prev,
+        [colorType]: color
+      }
+      
+      // Apply theme colors immediately for preview
+      applyThemeColors({
+        primary: updated.theme_primary_color,
+        secondary: updated.theme_secondary_color,
+        accent: updated.theme_accent_color
+      })
+      
+      return updated
+    })
+  }
   
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Settings</h1>
       
       <Tabs defaultValue="general" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-8">
+        <TabsList className="grid w-full grid-cols-4 mb-8">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             General
+          </TabsTrigger>
+          <TabsTrigger value="theme" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Theme
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
@@ -498,6 +529,75 @@ export default function AdminSettings() {
             <CardFooter>
               <Button onClick={handleSaveSettings} disabled={isSaving || isLoading}>
                 {isSaving ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="theme">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5" />
+                Theme Colors
+              </CardTitle>
+              <CardDescription>
+                Customize your store's theme colors. Changes will be applied immediately for preview.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <Label>Primary Color</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Main brand color used for buttons and highlights
+                  </p>
+                  <ColorPicker
+                    value={storeSettings.theme_primary_color}
+                    onChange={(color) => handleThemeColorChange('theme_primary_color', color)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Secondary Color</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Supporting color for secondary elements
+                  </p>
+                  <ColorPicker
+                    value={storeSettings.theme_secondary_color}
+                    onChange={(color) => handleThemeColorChange('theme_secondary_color', color)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Accent Color</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Accent color for special highlights and CTAs
+                  </p>
+                  <ColorPicker
+                    value={storeSettings.theme_accent_color}
+                    onChange={(color) => handleThemeColorChange('theme_accent_color', color)}
+                  />
+                </div>
+              </div>
+              
+              <Separator />
+              
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium">Preview</h4>
+                <div className="p-4 border rounded-lg space-y-3">
+                  <div className="flex gap-2">
+                    <Button size="sm">Primary Button</Button>
+                    <Button variant="secondary" size="sm">Secondary Button</Button>
+                    <Button variant="outline" size="sm">Outline Button</Button>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    This preview shows how your theme colors will appear on buttons and other elements.
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleSaveSettings} disabled={isSaving || isLoading}>
+                {isSaving ? 'Saving...' : 'Save Theme Colors'}
               </Button>
             </CardFooter>
           </Card>

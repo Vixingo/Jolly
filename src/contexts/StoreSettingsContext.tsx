@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { getStoreSettings, type StoreSettings } from '../lib/store-settings'
+import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'
 
 interface StoreSettingsContextType {
   storeSettings: StoreSettings | null
@@ -23,6 +24,15 @@ export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) 
       setIsLoading(true)
       const settings = await getStoreSettings()
       setStoreSettings(settings)
+      
+      // Apply theme colors if available
+      if (settings) {
+        applyThemeColors({
+          primary: settings.theme_primary_color || DEFAULT_THEME_COLORS.primary,
+          secondary: settings.theme_secondary_color || DEFAULT_THEME_COLORS.secondary,
+          accent: settings.theme_accent_color || DEFAULT_THEME_COLORS.accent
+        })
+      }
     } catch (error) {
       console.error('Error loading store settings:', error)
     } finally {

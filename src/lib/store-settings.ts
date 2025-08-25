@@ -21,6 +21,9 @@ export interface StoreSettings {
   terms_of_service?: string
   return_policy?: string
   shipping_policy?: string
+  theme_primary_color?: string
+  theme_secondary_color?: string
+  theme_accent_color?: string
   is_active?: boolean
   created_at?: string
   updated_at?: string
@@ -44,6 +47,9 @@ export interface StoreSettingsFormData {
   terms_of_service: string
   return_policy: string
   shipping_policy: string
+  theme_primary_color: string
+  theme_secondary_color: string
+  theme_accent_color: string
 }
 
 export const CURRENCY_OPTIONS = [
