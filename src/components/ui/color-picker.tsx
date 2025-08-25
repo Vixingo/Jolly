@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from './button'
 import { Input } from './input'
 import { Label } from './label'
-import { Popover, PopoverContent, PopoverTrigger } from './popover'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 interface ColorPickerProps {
