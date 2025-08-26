@@ -349,7 +349,7 @@ export default function ProductModal({ isOpen, onClose, onSave, product, mode }:
                       <div className="flex items-center space-x-4 mt-2">
                         <Badge variant="secondary">{formData.category}</Badge>
                         <span className="font-semibold text-primary">
-                          {formData.price ? formatCurrency(parseFloat(formData.price)) : '$0.00'}
+                          {formData.price ? formatCurrency(parseFloat(formData.price)) : formatCurrency(0)}
                         </span>
                         <span className="text-sm text-muted-foreground">
                           Stock: {formData.stock || 0}

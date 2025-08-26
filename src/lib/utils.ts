@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { useStoreCurrency } from '../contexts/StoreSettingsContext'
+import { getCurrencySymbol } from './store-settings'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -15,10 +16,26 @@ export function formatCurrency(amount: number): string {
 
 // Format currency with specific currency code
 export function formatCurrencyWithCode(amount: number, currencyCode: string): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(amount)
+  try {
+    // Try using Intl.NumberFormat first
+    const formatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currencyCode,
+    }).format(amount)
+    
+    // For BDT, Intl.NumberFormat might not show the correct symbol
+    // So we need to check and replace if necessary
+    if (currencyCode === 'BDT' && !formatted.includes('৳')) {
+      // Fall back to our custom formatting for BDT
+      return `৳${amount.toFixed(2)}`
+    }
+    
+    return formatted
+  } catch (error) {
+    // Fallback to custom formatting if Intl.NumberFormat fails
+    const symbol = getCurrencySymbol(currencyCode)
+    return `${symbol}${amount.toFixed(2)}`
+  }
 }
 
 // Custom hook to format currency using store settings

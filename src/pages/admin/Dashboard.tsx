@@ -6,6 +6,7 @@ import { Badge } from '../../components/ui/badge'
 import { Separator } from '../../components/ui/separator'
 import { Progress } from '../../components/ui/progress'
 import { supabase } from '../../lib/supabase'
+import { useFormatCurrency } from '../../lib/utils'
 import {
   LayoutDashboard,
   DollarSign,
@@ -23,6 +24,7 @@ import {
 } from 'lucide-react'
 
 export default function Dashboard() {
+  const formatCurrency = useFormatCurrency()
   const [stats, setStats] = useState({
     totalRevenue: 0,
     totalOrders: 0,
@@ -34,7 +36,7 @@ export default function Dashboard() {
     lowStockProducts: 0
   })
   
-  const [recentOrders, setRecentOrders] = useState([])
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
 
@@ -83,12 +85,7 @@ export default function Dashboard() {
           lowStockProducts: lowStockCount || 0
         })
         
-        setRecentOrders(orders ? orders as Array<{
-          id: number,
-          created_at: string,
-          total: number,
-          status: string,
-        }> | undefined: [])
+        setRecentOrders(orders || [])
       } catch (error: unknown) {
         console.error('Error fetching dashboard data:', error)
       } finally {
@@ -116,7 +113,7 @@ export default function Dashboard() {
     format?: 'number' | 'currency';
   }) => {
     const formattedValue = format === 'currency' 
-      ? `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` 
+      ? formatCurrency(value) 
       : value.toLocaleString()
     
     return (
@@ -230,7 +227,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">${parseFloat((order as { total: string }).total).toFixed(2)}</p>
+                          <p className="font-medium">{formatCurrency(parseFloat((order as { total: string }).total))}</p>
                           <Badge variant={(order as { status: string }).status === 'delivered' ? 'default' :
                                         (order as { status: string }).status === 'shipped' ? 'secondary' :
                                         (order as { status: string }).status === 'processing' ? 'outline' :
