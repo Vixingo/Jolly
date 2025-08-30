@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useFormatCurrency } from '../../lib/utils'
-import { deleteFile, getFilePathFromUrl } from '../../lib/storage-utils'
+// Removed unused imports: deleteFile, getFilePathFromUrl
 import { uploadProductImages, deleteProductImages } from '../../lib/product-image-utils'
 import ProductModal from '../../components/admin/ProductModal'
 import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal'
@@ -49,7 +49,7 @@ export default function AdminProducts() {
       }
 
       dispatch(setProducts(data || []))
-    } catch (error) {
+    } catch {
       dispatch(setError('Failed to fetch products'))
     } finally {
       dispatch(setLoading(false))
@@ -99,7 +99,7 @@ export default function AdminProducts() {
     }
   }
 
-  const handleSaveProduct = async (productData: any) => {
+  const handleSaveProduct = async (productData: Partial<Product> & { tempFiles?: File[] }) => {
     try {
       // Extract tempFiles from productData
       const { tempFiles, ...productDataWithoutFiles } = productData

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import  { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { getStoreSettings, type StoreSettings } from '../lib/store-settings'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'

@@ -11,8 +11,7 @@ import {
   Calendar,
   User,
   Clock,
-  Filter,
-  ArrowUpDown
+  Filter
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useFormatCurrency } from '../../lib/utils'
@@ -40,7 +39,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '../../components/ui/pagination'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { toast } from 'sonner'
 
 interface Order {

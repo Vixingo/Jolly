@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '../store/hooks'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
@@ -6,12 +6,16 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Textarea } from '../components/ui/textarea'
+import { RadioGroup, RadioGroupItem } from '@radix-ui/react-radio-group'
+import { Separator } from '../components/ui/separator'
 import { supabase } from '../lib/supabase'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { clearCart } from '../store/slices/cartSlice'
 import { useFormatCurrency } from '../lib/utils'
 import WhatsAppButton from '../components/support/WhatsAppButton'
+import { getAvailablePaymentMethods, initializePayment, type PaymentRequest } from '../lib/payment-gateways'
+import { CreditCard, Smartphone } from 'lucide-react'
 
 const checkoutSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -51,7 +55,23 @@ export default function CheckoutPage() {
     phoneNumber: '',
     address: ''
   })
+  const [paymentMethods, setPaymentMethods] = useState<Array<{id: string, name: string, enabled: boolean}>>([])
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('cod')
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false)
   const formatCurrency = useFormatCurrency()
+
+  // Load available payment methods
+  useEffect(() => {
+    const loadPaymentMethods = async () => {
+      try {
+        const methods = await getAvailablePaymentMethods()
+        setPaymentMethods(methods)
+      } catch (error) {
+        console.error('Error loading payment methods:', error)
+      }
+    }
+    loadPaymentMethods()
+  }, [])
 
   const validateField = (field: keyof CheckoutFormData, value: string) => {
     try {
@@ -119,7 +139,8 @@ export default function CheckoutPage() {
         })),
         shipping_address: addressData,
         billing_address: addressData, // Use same address for billing
-        payment_status: 'unpaid' as const,
+        payment_status: selectedPaymentMethod === 'cod' ? 'unpaid' : 'pending',
+        payment_method: selectedPaymentMethod,
         status: 'pending' as const,
         tracking_number: null
       }
@@ -132,6 +153,12 @@ export default function CheckoutPage() {
 
       if (error) throw error
 
+      // Handle payment processing for online payments
+      if (selectedPaymentMethod !== 'cod') {
+        await handleOnlinePayment(data)
+        return
+      }
+
       // Clear the cart after successful order placement
       dispatch(clearCart())
       
@@ -142,6 +169,45 @@ export default function CheckoutPage() {
       toast.error('Failed to place order')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleOnlinePayment = async (orderData: any) => {
+    try {
+      setIsProcessingPayment(true)
+      
+      const paymentRequest: PaymentRequest = {
+        amount: finalTotal,
+        currency: 'BDT',
+        order_id: orderData.id,
+        customer_name: formData.fullName,
+        customer_email: user?.email,
+        customer_phone: formData.phoneNumber,
+        customer_address: formData.address,
+        success_url: `${window.location.origin}/payment-success?order_id=${orderData.id}`,
+        fail_url: `${window.location.origin}/payment-failed?order_id=${orderData.id}`,
+        cancel_url: `${window.location.origin}/checkout`
+      }
+
+      const paymentResponse = await initializePayment(
+        selectedPaymentMethod as 'sslcommerz' | 'bkash',
+        paymentRequest
+      )
+
+      if (paymentResponse.success && paymentResponse.payment_url) {
+        // Clear cart before redirecting to payment
+        dispatch(clearCart())
+        
+        // Redirect to payment gateway
+        window.location.href = paymentResponse.payment_url
+      } else {
+        toast.error(paymentResponse.error || 'Failed to initialize payment')
+      }
+    } catch (error) {
+      console.error('Payment initialization error:', error)
+      toast.error('Failed to process payment')
+    } finally {
+      setIsProcessingPayment(false)
     }
   }
 
@@ -210,6 +276,43 @@ export default function CheckoutPage() {
                 />
               </div>
 
+              {/* Payment Method Selection */}
+              <div className="space-y-4">
+                <Label className="text-sm font-medium">Payment Method</Label>
+                <RadioGroup
+                  value={selectedPaymentMethod}
+                  onValueChange={setSelectedPaymentMethod}
+                  className="space-y-3"
+                >
+                  {/* Cash on Delivery - Always Available */}
+                  <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                    <RadioGroupItem value="cod" id="cod" />
+                    <Label htmlFor="cod" className="flex items-center gap-2 cursor-pointer flex-1">
+                      <CreditCard className="h-4 w-4" />
+                      <span>Cash on Delivery</span>
+                    </Label>
+                  </div>
+                  
+                  {/* Online Payment Methods */}
+                  {paymentMethods.length > 0 && paymentMethods.map((method) => (
+                    <div key={method.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                      <RadioGroupItem value={method.id} id={method.id} />
+                      <Label htmlFor={method.id} className="flex items-center gap-2 cursor-pointer flex-1">
+                        {method.id === 'bkash' ? (
+                          <Smartphone className="h-4 w-4" />
+                        ) : (
+                          <CreditCard className="h-4 w-4" />
+                        )}
+                        <span>{method.name}</span>
+                        <span className="text-xs text-muted-foreground ml-auto">Pay Online</span>
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              <Separator />
+
               {/* Order Summary Section */}
               <div className="mt-6 p-3 bg-muted rounded-lg">
                 <h3 className="text-sm font-medium mb-2">Order Summary</h3>
@@ -257,9 +360,12 @@ export default function CheckoutPage() {
                   type="submit" 
                   className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-lg animate-[jiggle_6s_ease-in-out_infinite]" 
                   size="lg"
-                  disabled={isLoading}
+                  disabled={isLoading || isProcessingPayment}
                 >
-                  {isLoading ? 'Processing...' : `Place Order - ${formatCurrency(finalTotal)}`}
+                  {isProcessingPayment ? 'Processing Payment...' : 
+                   isLoading ? 'Processing...' : 
+                   selectedPaymentMethod === 'cod' ? `Place Order - ${formatCurrency(finalTotal)}` :
+                   `Pay Online - ${formatCurrency(finalTotal)}`}
                 </Button>
               </div>
 

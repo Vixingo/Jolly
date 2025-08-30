@@ -15,7 +15,6 @@ import AdminProducts from './pages/admin/Products'
 import AdminUsers from './pages/admin/Users'
 
 import AdminSettings from './pages/admin/Settings'
-
 import AdminOrders from './pages/admin/Orders'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
@@ -52,7 +51,6 @@ function App() {
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="orders" element={<AdminOrders />} />
-
                 <Route path="settings" element={<AdminSettings />} />
 
               </Route>

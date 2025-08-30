@@ -13,7 +13,6 @@ import {
   ShoppingCart,
   BarChart2,
   Settings,
-
   LogOut,
   Menu,
   Sun,
@@ -63,14 +62,13 @@ export default function AdminLayout() {
     { name: 'Products', path: '/admin/products', icon: <Package className="h-5 w-5" /> },
     { name: 'Users', path: '/admin/users', icon: <Users className="h-5 w-5" /> },
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingCart className="h-5 w-5" /> },
-
-
     { name: 'Settings', path: '/admin/settings', icon: <Settings className="h-5 w-5" /> },
   ]
 
   const NavItem = ({ item, mobile = false }: { item: { name: string; path: string; icon: React.ReactElement }; mobile?: boolean }) => (
     <NavLink 
       to={item.path} 
+      end={item.path === '/admin'}
       className={({ isActive }) => `
         flex items-center gap-3 px-3 py-2 rounded-md transition-colors
         ${isActive 

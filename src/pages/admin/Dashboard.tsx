@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
 import { Button } from '../../components/ui/button'
 import { Badge } from '../../components/ui/badge'
-import { Separator } from '../../components/ui/separator'
 import { Progress } from '../../components/ui/progress'
 import { supabase } from '../../lib/supabase'
 import { useFormatCurrency } from '../../lib/utils'
 import {
-  LayoutDashboard,
   DollarSign,
   Users,
   ShoppingBag,
@@ -36,66 +34,97 @@ export default function Dashboard() {
     lowStockProducts: 0
   })
   
-  const [recentOrders, setRecentOrders] = useState<any[]>([])
+  const [recentOrders, setRecentOrders] = useState<Array<{
+    id: string;
+    total: string;
+    status: string;
+    created_at: string;
+    user_name?: string;
+    user_email?: string;
+  }>>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true)
-      try {
-        // Fetch total users
-        const { count: usersCount } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-        
-        // Fetch total products
-        const { count: productsCount } = await supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true })
-        
-        // Fetch low stock products
-        const { count: lowStockCount } = await supabase
-          .from('products')
-          .select('*', { count: 'exact', head: true })
-          .lt('stock', 10)
-        
-        // Fetch total orders and revenue
-        const { data: orders, error: ordersError } = await supabase
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5)
-        
-        if (ordersError) throw ordersError
-        
-        // Calculate total revenue from all orders
-        const { data: allOrders } = await supabase
-          .from('orders')
-          .select('total')
-        
-        const totalRevenue = allOrders?.reduce((sum, order) => sum + parseFloat(order.total), 0) || 0
-        
-        setStats({
-          ...stats,
-          totalRevenue,
-          totalOrders: allOrders?.length || 0,
-          totalUsers: usersCount || 0,
-          totalProducts: productsCount || 0,
-          lowStockProducts: lowStockCount || 0
-        })
-        
-        setRecentOrders(orders || [])
-      } catch (error: unknown) {
-        console.error('Error fetching dashboard data:', error)
-      } finally {
-        setLoading(false)
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true)
+    try {
+      // Fetch total users
+      const { count: usersCount } = await supabase
+        .from('users')
+        .select('*', { count: 'exact', head: true })
+      
+      // Fetch total products
+      const { count: productsCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+      
+      // Fetch low stock products
+      const { count: lowStockCount } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .lt('stock', 10)
+      
+      // Fetch total orders and revenue with customer information
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5)
+      
+      if (ordersError) throw ordersError
+      
+      // Fetch user information for each order
+      const ordersWithUserInfo = orders ? await Promise.all(
+        orders.map(async (order) => {
+          let userData = null
+          
+          if (order.user_id) {
+            const { data, error: userError } = await supabase
+              .from('users')
+              .select('email, full_name')
+              .eq('id', order.user_id)
+              .single()
+            
+            if (!userError && data) {
+              userData = data
+            }
+          }
 
-      }
+          return {
+            ...order,
+            user_email: userData?.email || 'Guest User',
+            user_name: userData?.full_name || 'Guest User'
+          }
+        })
+      ) : []
+      
+      // Calculate total revenue from all orders
+      const { data: allOrders } = await supabase
+        .from('orders')
+        .select('total')
+      
+      const totalRevenue = allOrders?.reduce((sum, order) => sum + parseFloat(order.total), 0) || 0
+      
+      setStats({
+        ...stats,
+        totalRevenue,
+        totalOrders: allOrders?.length || 0,
+        totalUsers: usersCount || 0,
+        totalProducts: productsCount || 0,
+        lowStockProducts: lowStockCount || 0
+      })
+      
+      setRecentOrders(ordersWithUserInfo || [])
+    } catch (error: unknown) {
+      console.error('Error fetching dashboard data:', error)
+    } finally {
+      setLoading(false)
     }
-    
+  }, [stats])
+
+  useEffect(() => {
     fetchDashboardData()
-  }, [])
+  }, [fetchDashboardData])
 
   const StatCard = ({ 
     title, 
@@ -216,23 +245,23 @@ export default function Dashboard() {
                 ) : recentOrders.length > 0 ? (
                   <div className="space-y-4">
                     {recentOrders.map((order) => (
-                      <div key={(order as { id: string }).id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
+                      <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                         <div className="space-y-1">
-                          <p className="font-medium">{(order as { id: string }).id.substring(0, 8)}...</p>
+                          <p className="font-medium">{order.user_name || 'Guest User'}</p>
                           <div className="flex items-center space-x-2">
                             <Clock className="h-3 w-3 text-muted-foreground" />
                             <span className="text-xs text-muted-foreground">
-                              {new Date((order as { created_at: string }).created_at).toLocaleDateString()}
+                              {new Date(order.created_at).toLocaleDateString()}
                             </span>
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="font-medium">{formatCurrency(parseFloat((order as { total: string }).total))}</p>
-                          <Badge variant={(order as { status: string }).status === 'delivered' ? 'default' :
-                                        (order as { status: string }).status === 'shipped' ? 'secondary' :
-                                        (order as { status: string }).status === 'processing' ? 'outline' :
-                                        (order as { status: string }).status === 'cancelled' ? 'destructive' : 'default'}>
-                            {((order as { status: string }).status.charAt(0).toUpperCase() + (order as { status: string }).status.slice(1))}
+                          <p className="font-medium">{formatCurrency(parseFloat(order.total))}</p>
+                          <Badge variant={order.status === 'delivered' ? 'default' :
+                                        order.status === 'shipped' ? 'secondary' :
+                                        order.status === 'processing' ? 'outline' :
+                                        order.status === 'cancelled' ? 'destructive' : 'default'}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </Badge>
                         </div>
                       </div>
