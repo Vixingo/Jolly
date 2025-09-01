@@ -91,6 +91,11 @@ export interface Database {
           billing_address: any
           payment_status: 'paid' | 'unpaid' | 'refunded'
           tracking_number: string | null
+          customer_phone: string | null
+          customer_email: string | null
+          payment_method: string
+          invoice_requested: boolean
+          invoice_email: string | null
           created_at: string
           updated_at: string
         }
@@ -104,6 +109,11 @@ export interface Database {
           billing_address?: any
           payment_status?: 'paid' | 'unpaid' | 'refunded'
           tracking_number?: string | null
+          customer_phone?: string | null
+          customer_email?: string | null
+          payment_method?: string
+          invoice_requested?: boolean
+          invoice_email?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -117,6 +127,11 @@ export interface Database {
           billing_address?: any
           payment_status?: 'paid' | 'unpaid' | 'refunded'
           tracking_number?: string | null
+          customer_phone?: string | null
+          customer_email?: string | null
+          payment_method?: string
+          invoice_requested?: boolean
+          invoice_email?: string | null
           created_at?: string
           updated_at?: string
         }

@@ -15,6 +15,7 @@ import { clearCart } from '../store/slices/cartSlice'
 import { useFormatCurrency } from '../lib/utils'
 import WhatsAppButton from '../components/support/WhatsAppButton'
 import { getAvailablePaymentMethods, initializePayment, type PaymentRequest } from '../lib/payment-gateways'
+import { handleInvoiceRequest } from '../lib/emailService'
 import { CreditCard, Smartphone } from 'lucide-react'
 
 const checkoutSchema = z.object({
@@ -58,6 +59,8 @@ export default function CheckoutPage() {
   const [paymentMethods, setPaymentMethods] = useState<Array<{id: string, name: string, enabled: boolean}>>([])
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('cod')
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [needInvoice, setNeedInvoice] = useState(false)
+  const [invoiceEmail, setInvoiceEmail] = useState('')
   const formatCurrency = useFormatCurrency()
 
   // Load available payment methods
@@ -141,6 +144,10 @@ export default function CheckoutPage() {
         billing_address: addressData, // Use same address for billing
         payment_status: selectedPaymentMethod === 'cod' ? 'unpaid' : 'pending',
         payment_method: selectedPaymentMethod,
+        customer_phone: formData.phoneNumber,
+        customer_email: user?.email || null,
+        invoice_requested: selectedPaymentMethod !== 'cod' && needInvoice,
+        invoice_email: selectedPaymentMethod !== 'cod' && needInvoice ? invoiceEmail : null,
         status: 'pending' as const,
         tracking_number: null
       }
@@ -157,6 +164,11 @@ export default function CheckoutPage() {
       if (selectedPaymentMethod !== 'cod') {
         await handleOnlinePayment(data)
         return
+      }
+
+      // Handle invoice request if needed
+      if (data.invoice_requested && data.invoice_email) {
+        await handleInvoiceRequest(data.id)
       }
 
       // Clear the cart after successful order placement
@@ -285,7 +297,11 @@ export default function CheckoutPage() {
                   className="space-y-3"
                 >
                   {/* Cash on Delivery - Always Available */}
-                  <div className="flex items-center space-x-3 p-3 border rounded-lg">
+                  <div className={`flex items-center space-x-3 p-3 border rounded-lg transition-all ${
+                    selectedPaymentMethod === 'cod' 
+                      ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}>
                     <RadioGroupItem value="cod" id="cod" />
                     <Label htmlFor="cod" className="flex items-center gap-2 cursor-pointer flex-1">
                       <CreditCard className="h-4 w-4" />
@@ -295,7 +311,11 @@ export default function CheckoutPage() {
                   
                   {/* Online Payment Methods */}
                   {paymentMethods.length > 0 && paymentMethods.map((method) => (
-                    <div key={method.id} className="flex items-center space-x-3 p-3 border rounded-lg">
+                    <div key={method.id} className={`flex items-center space-x-3 p-3 border rounded-lg transition-all ${
+                      selectedPaymentMethod === method.id 
+                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}>
                       <RadioGroupItem value={method.id} id={method.id} />
                       <Label htmlFor={method.id} className="flex items-center gap-2 cursor-pointer flex-1">
                         {method.id === 'bkash' ? (
@@ -309,6 +329,41 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </RadioGroup>
+                
+                {/* Invoice Request for Online Payments */}
+                {selectedPaymentMethod !== 'cod' && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="needInvoice"
+                        checked={needInvoice}
+                        onChange={(e) => setNeedInvoice(e.target.checked)}
+                        className="rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <Label htmlFor="needInvoice" className="text-sm font-medium cursor-pointer">
+                        Need an invoice?
+                      </Label>
+                    </div>
+                    
+                    {needInvoice && (
+                      <div>
+                        <Label htmlFor="invoiceEmail" className="text-sm font-medium">
+                          Invoice Email Address
+                        </Label>
+                        <Input
+                          id="invoiceEmail"
+                          type="email"
+                          value={invoiceEmail}
+                          onChange={(e) => setInvoiceEmail(e.target.value)}
+                          className="mt-1"
+                          placeholder="Enter email for invoice"
+                          required={needInvoice}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <Separator />

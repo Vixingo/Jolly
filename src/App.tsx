@@ -10,6 +10,8 @@ import HomePage from './pages/HomePage'
 import ProductPage from './pages/ProductPage'
 import CheckoutPage from './pages/CheckoutPage'
 import ThankYouPage from './pages/ThankYouPage'
+import PaymentSuccessPage from './pages/PaymentSuccessPage'
+import PaymentFailedPage from './pages/PaymentFailedPage'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminProducts from './pages/admin/Products'
 import AdminUsers from './pages/admin/Users'
@@ -39,6 +41,8 @@ function App() {
                 <Route path="signup" element={<SignupPage />} />
                 <Route path="checkout" element={<CheckoutPage />} />
                 <Route path="thank-you" element={<ThankYouPage />} />
+                <Route path="payment-success" element={<PaymentSuccessPage />} />
+                <Route path="payment-failed" element={<PaymentFailedPage />} />
               </Route>
               
               {/* Admin routes */}

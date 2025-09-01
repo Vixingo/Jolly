@@ -150,7 +150,7 @@ export default function AdminProducts() {
           
           // Add new URLs to existing images
           productDataWithoutFiles.images = [
-            ...productDataWithoutFiles.images,
+            ...(productDataWithoutFiles.images || []),
             ...uploadedUrls
           ]
         }
