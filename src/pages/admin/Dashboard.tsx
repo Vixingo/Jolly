@@ -213,7 +213,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         fetchDashboardData();
-    }, [fetchDashboardData]);
+    }, []);
 
     const StatCard = ({
         title,
