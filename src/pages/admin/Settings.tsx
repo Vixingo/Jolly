@@ -9,7 +9,7 @@ import { Separator } from '../../components/ui/separator'
 import { Textarea } from '../../components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
 import { Bell, Store, Upload, X, Facebook, Instagram, Twitter, Linkedin, Youtube, MessageCircle, Palette, Truck, CreditCard, BarChart3 } from 'lucide-react'
-import { getStoreSettings, updateStoreSettings, uploadStoreLogo, CURRENCY_OPTIONS, type StoreSettingsFormData } from '../../lib/store-settings'
+import { getStoreSettings, updateStoreSettings, uploadStoreLogo, uploadStoreFavicon, CURRENCY_OPTIONS, type StoreSettingsFormData } from '../../lib/store-settings'
 import { ColorPicker } from '../../components/ui/color-picker'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../../lib/theme-utils'
 import { toast } from 'sonner'
@@ -23,6 +23,7 @@ export default function AdminSettings() {
     store_whatsapp: '',
     store_address: '',
     currency: 'USD',
+    favicon_url: '',
     facebook_url: '',
     instagram_url: '',
     twitter_url: '',
@@ -76,9 +77,15 @@ export default function AdminSettings() {
   const [currentLogo, setCurrentLogo] = useState<string | null>(null)
   const [logoFile, setLogoFile] = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  
+  const [currentFavicon, setCurrentFavicon] = useState<string | null>(null)
+  const [faviconFile, setFaviconFile] = useState<File | null>(null)
+  const [faviconPreview, setFaviconPreview] = useState<string | null>(null)
+  
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const logoFileInputRef = useRef<HTMLInputElement>(null)
+  const faviconFileInputRef = useRef<HTMLInputElement>(null)
   
   const [notificationSettings, setNotificationSettings] = useState({
     orderNotifications: true,
@@ -105,6 +112,7 @@ export default function AdminSettings() {
           store_whatsapp: settings.store_whatsapp || '',
           store_address: settings.store_address || '',
           currency: settings.currency || 'USD',
+          favicon_url: settings.favicon_url || '',
           facebook_url: settings.facebook_url || '',
           instagram_url: settings.instagram_url || '',
           twitter_url: settings.twitter_url || '',
@@ -155,6 +163,7 @@ export default function AdminSettings() {
           gtm_enabled: settings.gtm_enabled || false
         })
         setCurrentLogo(settings.logo_url || null)
+        setCurrentFavicon(settings.favicon_url || null)
       }
     } catch (error) {
       console.error('Error loading store settings:', error)
@@ -198,6 +207,7 @@ export default function AdminSettings() {
       
       // Create preview
       const reader = new FileReader()
+
       reader.onload = (e) => {
         setLogoPreview(e.target?.result as string)
       }
@@ -208,8 +218,42 @@ export default function AdminSettings() {
   const handleRemoveLogo = () => {
     setLogoFile(null)
     setLogoPreview(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+    if (logoFileInputRef.current) {
+      logoFileInputRef.current.value = ''
+    }
+  }
+  
+  const handleFaviconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file')
+        return
+      }
+      
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error('Favicon size should be less than 2MB')
+        return
+      }
+
+      setFaviconFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setFaviconPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+  
+  const handleRemoveFavicon = () => {
+    setFaviconFile(null)
+    setFaviconPreview(null)
+    if (faviconFileInputRef.current) {
+      faviconFileInputRef.current.value = ''
     }
   }
 
@@ -218,6 +262,8 @@ export default function AdminSettings() {
     try {
       let logoUrl = currentLogo
       let logoStoragePath = ''
+      let faviconUrl = currentFavicon
+      let faviconStoragePath = ''
 
       // Upload new logo if selected
       if (logoFile) {
@@ -236,21 +282,49 @@ export default function AdminSettings() {
           return
         }
       }
+      
+      // Upload new favicon if selected
+      if (faviconFile) {
+        const uploadResult = await uploadStoreFavicon(faviconFile)
+        if (uploadResult) {
+          faviconUrl = uploadResult.url
+          faviconStoragePath = uploadResult.path
+          
+          // Delete old favicon if exists
+          if (currentFavicon) {
+            // Extract path from current favicon URL if needed
+            // This is a simplified approach - you might need to store the path separately
+          }
+        } else {
+          toast.error('Failed to upload favicon')
+          return
+        }
+      }
 
       // Update store settings
        const updatedSettings = await updateStoreSettings({
          ...storeSettings,
          logo_url: logoUrl || undefined,
-         logo_storage_path: logoStoragePath
+         logo_storage_path: logoStoragePath,
+         favicon_url: faviconUrl || undefined,
+         favicon_storage_path: faviconStoragePath
        })
 
       if (updatedSettings) {
         setCurrentLogo(logoUrl)
         setLogoFile(null)
         setLogoPreview(null)
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
+        if (logoFileInputRef.current) {
+          logoFileInputRef.current.value = ''
         }
+        
+        setCurrentFavicon(faviconUrl)
+        setFaviconFile(null)
+        setFaviconPreview(null)
+        if (faviconFileInputRef.current) {
+          faviconFileInputRef.current.value = ''
+        }
+        
         toast.success('Store settings saved successfully!')
       } else {
         toast.error('Failed to save store settings')
@@ -426,7 +500,7 @@ export default function AdminSettings() {
                   )}
                   <div className="flex-1">
                     <Input
-                      ref={fileInputRef}
+                      ref={logoFileInputRef}
                       type="file"
                       accept="image/*"
                       onChange={handleLogoUpload}
@@ -435,7 +509,7 @@ export default function AdminSettings() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => fileInputRef.current?.click()}
+                      onClick={() => logoFileInputRef.current?.click()}
                       className="w-full"
                     >
                       <Upload className="h-4 w-4 mr-2" />
@@ -443,6 +517,52 @@ export default function AdminSettings() {
                     </Button>
                     <p className="text-sm text-muted-foreground mt-1">
                       Recommended: 200x200px, max 5MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Favicon Upload Section */}
+              <div className="space-y-4">
+                <Label>Store Favicon</Label>
+                <div className="flex items-center gap-4">
+                  {(faviconPreview || currentFavicon) && (
+                    <div className="relative">
+                      <img
+                        src={faviconPreview || currentFavicon || ''}
+                        alt="Store favicon"
+                        className="w-12 h-12 object-contain border rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                        onClick={handleRemoveFavicon}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <Input
+                      ref={faviconFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFaviconUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => faviconFileInputRef.current?.click()}
+                      className="w-full"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {faviconPreview || currentFavicon ? 'Change Favicon' : 'Upload Favicon'}
+                    </Button>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Recommended: 32x32px or 64x64px, max 2MB
                     </p>
                   </div>
                 </div>

@@ -1,0 +1,56 @@
+/* Preloader styles */
+.preloader-enter {
+  opacity: 0;
+}
+
+.preloader-enter-active {
+  opacity: 1;
+  transition: opacity 500ms;
+}
+
+.preloader-exit {
+  opacity: 1;
+}
+
+.preloader-exit-active {
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+/* Add a subtle pulse animation for the preloader */
+@keyframes preloader-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+}
+
+.preloader-pulse {
+  animation: preloader-pulse 1.5s ease-in-out infinite;
+}
+
+/* Add a background animation for the preloader */
+@keyframes gradient-background {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Hide scrollbar when preloader is active */
+body.loading {
+  overflow: hidden;
+}

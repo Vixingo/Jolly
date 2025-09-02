@@ -80,6 +80,11 @@ export function useStoreLogo() {
   return storeSettings?.logo_url || null
 }
 
+export function useStoreFavicon() {
+  const { storeSettings } = useStoreSettings()
+  return storeSettings?.favicon_url || null
+}
+
 export function useStoreContact() {
   const { storeSettings } = useStoreSettings()
   return {

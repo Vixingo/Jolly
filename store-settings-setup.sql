@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS store_settings (
   store_address TEXT,
   logo_url TEXT,
   logo_storage_path TEXT,
+  favicon_url TEXT,
+  favicon_storage_path TEXT,
   currency TEXT DEFAULT 'USD' CHECK (currency IN ('USD', 'EUR', 'GBP', 'JPY', 'BDT', 'INR', 'CAD', 'AUD')),
   
   -- Social media links
@@ -38,10 +40,38 @@ CREATE TABLE IF NOT EXISTS store_settings (
 ALTER TABLE store_settings ENABLE ROW LEVEL SECURITY;
 
 -- Create RLS policies for store_settings
--- Everyone can view store settings (for storefront display)
-CREATE POLICY "Store settings are viewable by everyone" 
+-- Everyone can view general and theme store settings (for storefront display)
+CREATE POLICY "General and theme settings are viewable by everyone" 
   ON store_settings FOR SELECT 
   USING (true);
+
+-- Create a view for public settings (general and theme only)
+CREATE OR REPLACE VIEW public_store_settings AS
+SELECT 
+  id, store_name, store_description, logo_url, favicon_url,
+  theme_primary_color, theme_secondary_color, theme_accent_color
+FROM store_settings
+WHERE is_active = true
+ORDER BY created_at DESC
+LIMIT 1;
+
+-- Create function to get public store settings
+CREATE OR REPLACE FUNCTION get_public_store_settings()
+RETURNS TABLE (
+  id UUID,
+  store_name TEXT,
+  store_description TEXT,
+  logo_url TEXT,
+  favicon_url TEXT,
+  theme_primary_color TEXT,
+  theme_secondary_color TEXT,
+  theme_accent_color TEXT
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT * FROM public_store_settings;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Only admins can modify store settings
 CREATE POLICY "Only admins can insert store settings" 
@@ -67,6 +97,7 @@ RETURNS TABLE (
   store_whatsapp TEXT,
   store_address TEXT,
   logo_url TEXT,
+  favicon_url TEXT,
   currency TEXT,
   facebook_url TEXT,
   instagram_url TEXT,
@@ -77,16 +108,20 @@ RETURNS TABLE (
   privacy_policy TEXT,
   terms_of_service TEXT,
   return_policy TEXT,
-  shipping_policy TEXT
+  shipping_policy TEXT,
+  theme_primary_color TEXT,
+  theme_secondary_color TEXT,
+  theme_accent_color TEXT
 ) AS $$
 BEGIN
   RETURN QUERY
   SELECT 
     s.id, s.store_name, s.store_description, s.store_email, s.store_phone,
-    s.store_whatsapp, s.store_address, s.logo_url, s.currency,
+    s.store_whatsapp, s.store_address, s.logo_url, s.favicon_url, s.currency,
     s.facebook_url, s.instagram_url, s.twitter_url, s.linkedin_url,
     s.youtube_url, s.tiktok_url, s.privacy_policy, s.terms_of_service,
-    s.return_policy, s.shipping_policy
+    s.return_policy, s.shipping_policy, s.theme_primary_color,
+    s.theme_secondary_color, s.theme_accent_color
   FROM store_settings s
   WHERE s.is_active = true
   ORDER BY s.created_at DESC
