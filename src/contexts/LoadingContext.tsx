@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useStoreSettings } from './StoreSettingsContext';
 
 interface LoadingContextType {
   isLoading: boolean;
@@ -16,16 +17,27 @@ export const useLoading = () => {
   return context;
 };
 
-export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// We need to create a separate component for the actual provider to use the useStoreSettings hook
+const LoadingProviderContent: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   // Check localStorage to see if this is the first visit ever
   const [isFirstLoad, setIsFirstLoad] = useState(() => {
     return localStorage.getItem('hasVisitedBefore') !== 'true';
   });
   const location = useLocation();
+  
+  // Get store settings loading state
+  const { isLoading: isStoreSettingsLoading } = useStoreSettings();
 
-  // Handle initial page load
+  // Handle initial page load and store settings loading
   useEffect(() => {
+    // Always show loading when store settings are loading
+    if (isStoreSettingsLoading) {
+      setIsLoading(true);
+      document.body.classList.add('loading');
+      return;
+    }
+    
     if (isFirstLoad) {
       // Show preloader for initial page load
       setIsLoading(true);
@@ -52,11 +64,12 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         window.addEventListener('load', handleLoad);
         return () => window.removeEventListener('load', handleLoad);
       }
-    } else {
-      // If not first load, make sure content is visible immediately
+    } else if (!isStoreSettingsLoading) {
+      // If not first load and store settings are loaded, make content visible
       setIsLoading(false);
+      document.body.classList.remove('loading');
     }
-  }, [isFirstLoad]);
+  }, [isFirstLoad, isStoreSettingsLoading]);
 
   // We don't want to show loading on page navigation, only on first visit
   // This effect is intentionally empty to override the previous implementation
@@ -75,4 +88,9 @@ export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       {children}
     </LoadingContext.Provider>
   );
+};
+
+// Wrapper provider that doesn't use hooks
+export const LoadingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return <LoadingProviderContent>{children}</LoadingProviderContent>;
 };

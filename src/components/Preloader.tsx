@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useStoreSettings } from '../contexts/StoreSettingsContext';
 
 interface PreloaderProps {
   isLoading: boolean;
@@ -8,6 +9,7 @@ interface PreloaderProps {
 const Preloader: React.FC<PreloaderProps> = ({ isLoading }) => {
   const [show, setShow] = useState(isLoading);
   const [initialLoad, setInitialLoad] = useState(true);
+  const { isLoading: isStoreSettingsLoading } = useStoreSettings();
   
   useEffect(() => {
     if (isLoading) {
@@ -35,7 +37,8 @@ const Preloader: React.FC<PreloaderProps> = ({ isLoading }) => {
           <div className="absolute inset-0 h-16 w-16 rounded-full border-t-2 border-primary animate-ping opacity-20"></div>
         </div>
         <p className="text-xl text-primary font-medium">
-          {initialLoad ? 'Welcome, loading your experience...' : 'Loading...'}
+          {isStoreSettingsLoading ? 'Loading store settings...' : 
+           initialLoad ? 'Welcome, loading your experience...' : 'Loading...'}
         </p>
       </div>
     </div>

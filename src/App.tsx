@@ -52,16 +52,16 @@ function App() {
   return (
     <Provider store={store}>
       <AuthProvider>
-        <StoreSettingsProvider>
-          <Router>
+        <Router>
+          <StoreSettingsProvider>
             <LoadingProvider>
               <DocumentTitle />
               <DynamicFavicon />
               <PreloaderWrapper />
               <AppContent />
             </LoadingProvider>
-          </Router>
-        </StoreSettingsProvider>
+          </StoreSettingsProvider>
+        </Router>
       </AuthProvider>
     </Provider>
   )
