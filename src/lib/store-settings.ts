@@ -26,41 +26,6 @@ export interface StoreSettings {
   theme_primary_color?: string
   theme_secondary_color?: string
   theme_accent_color?: string
-  // Facebook Conversion API fields
-  fb_api_version?: string
-  fb_pixel_id?: string
-  fb_access_token?: string
-  // Courier Service fields
-  pathao_client_id?: string
-  pathao_client_secret?: string
-  pathao_username?: string
-  pathao_password?: string
-  pathao_base_url?: string
-  pathao_enabled?: boolean
-  stedfast_api_key?: string
-  stedfast_secret_key?: string
-  stedfast_base_url?: string
-  stedfast_enabled?: boolean
-  redx_api_token?: string
-  redx_base_url?: string
-  redx_enabled?: boolean
-  // Payment Gateway fields
-  sslcommerz_store_id?: string
-  sslcommerz_store_password?: string
-  sslcommerz_sandbox_mode?: boolean
-  sslcommerz_enabled?: boolean
-  bkash_app_key?: string
-  bkash_app_secret?: string
-  bkash_username?: string
-  bkash_password?: string
-  bkash_sandbox_mode?: boolean
-  bkash_enabled?: boolean
-  // Google Tag Manager fields
-  gtm_container_id?: string
-  ga_measurement_id?: string
-  google_ads_conversion_id?: string
-  google_ads_conversion_label?: string
-  gtm_enabled?: boolean
   is_active?: boolean
   created_at?: string
   updated_at?: string
@@ -88,41 +53,6 @@ export interface StoreSettingsFormData {
   theme_primary_color: string
   theme_secondary_color: string
   theme_accent_color: string
-  // Facebook Conversion API fields
-  fb_api_version: string
-  fb_pixel_id: string
-  fb_access_token: string
-  // Courier Service fields
-  pathao_client_id: string
-  pathao_client_secret: string
-  pathao_username: string
-  pathao_password: string
-  pathao_base_url: string
-  pathao_enabled: boolean
-  stedfast_api_key: string
-  stedfast_secret_key: string
-  stedfast_base_url: string
-  stedfast_enabled: boolean
-  redx_api_token: string
-  redx_base_url: string
-  redx_enabled: boolean
-  // Payment Gateway fields
-  sslcommerz_store_id: string
-  sslcommerz_store_password: string
-  sslcommerz_sandbox_mode: boolean
-  sslcommerz_enabled: boolean
-  bkash_app_key: string
-  bkash_app_secret: string
-  bkash_username: string
-  bkash_password: string
-  bkash_sandbox_mode: boolean
-  bkash_enabled: boolean
-  // Google Tag Manager fields
-  gtm_container_id: string
-  ga_measurement_id: string
-  google_ads_conversion_id: string
-  google_ads_conversion_label: string
-  gtm_enabled: boolean
 }
 
 export const CURRENCY_OPTIONS = [

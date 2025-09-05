@@ -17,6 +17,7 @@ import {
     Sun,
     Moon,
     ChevronRight,
+    Plug,
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -76,6 +77,11 @@ export default function AdminLayout() {
             name: "Orders",
             path: "/admin/orders",
             icon: <ShoppingCart className="h-5 w-5" />,
+        },
+        {
+            name: "API Management",
+            path: "/admin/api",
+            icon: <Plug className="h-5 w-5" />,
         },
         {
             name: "Settings",

@@ -12,7 +12,8 @@ export type FacebookEventType =
     | "Purchase"
     | "Lead"
     | "CompleteRegistration"
-    | "Search";
+    | "Search"
+    | "Contact";
 
 // Event data structure for Facebook Conversion API
 export interface FacebookEventData {
@@ -44,6 +45,7 @@ export interface FacebookEventData {
         num_items?: number;
         search_string?: string;
         status?: string;
+        contents?: Array<{ id: string; quantity: number; item_price?: number }>;
     };
     event_source_url?: string;
     action_source:
@@ -78,7 +80,7 @@ function simpleHash(data: string): string {
 // Get Facebook settings from store settings
 export async function getFacebookSettings(): Promise<FacebookSettings | null> {
     try {
-        const { data, error } = await supabase.rpc("get_store_settings");
+        const { data, error } = await supabase.rpc("get_api_configurations");
 
         if (error || !data || data.length === 0) {
             console.warn("No store settings found for Facebook tracking");
@@ -258,6 +260,7 @@ export async function trackAddToCart(
     value: number,
     currency: string = "USD",
     quantity: number = 1,
+    contents?: Array<{ id: string; quantity: number; item_price?: number }>,
     userInfo?: Parameters<typeof getUserData>[0]
 ): Promise<boolean> {
     const eventData: FacebookEventData = {
@@ -273,6 +276,7 @@ export async function trackAddToCart(
             content_name: productName,
             content_category: category,
             num_items: quantity,
+            contents: contents || [{ id: productId, quantity }],
         },
         event_source_url:
             typeof window !== "undefined" ? window.location.href : undefined,
@@ -288,6 +292,8 @@ export async function trackInitiateCheckout(
     currency: string = "USD",
     numItems: number,
     contentIds: string[],
+    contentName?: string,
+    contents?: Array<{ id: string; quantity: number; item_price?: number }>,
     userInfo?: Parameters<typeof getUserData>[0]
 ): Promise<boolean> {
     const eventData: FacebookEventData = {
@@ -296,11 +302,13 @@ export async function trackInitiateCheckout(
         event_id: generateEventId(),
         user_data: getUserData(userInfo),
         custom_data: {
+            content_name: contentName,
             currency,
             value,
             content_ids: contentIds,
             content_type: "product",
             num_items: numItems,
+            contents: contents,
         },
         event_source_url:
             typeof window !== "undefined" ? window.location.href : undefined,
@@ -312,11 +320,13 @@ export async function trackInitiateCheckout(
 
 // Track purchase event
 export async function trackPurchase(
-    // orderId: string,
+    orderId: string,
     value: number,
     currency: string = "USD",
     contentIds: string[],
     numItems: number,
+    contentName?: string,
+    contents?: Array<{ id: string; quantity: number; item_price?: number }>,
     userInfo?: Parameters<typeof getUserData>[0]
 ): Promise<boolean> {
     const eventData: FacebookEventData = {
@@ -330,6 +340,9 @@ export async function trackPurchase(
             content_ids: contentIds,
             content_type: "product",
             num_items: numItems,
+            content_name: contentName,
+            contents: contents,
+            status: orderId,
         },
         event_source_url:
             typeof window !== "undefined" ? window.location.href : undefined,
@@ -368,6 +381,31 @@ export async function trackLead(
 ): Promise<boolean> {
     const eventData: FacebookEventData = {
         event_name: "Lead",
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: generateEventId(),
+        user_data: getUserData(userInfo),
+        custom_data: value
+            ? {
+                  currency,
+                  value,
+              }
+            : undefined,
+        event_source_url:
+            typeof window !== "undefined" ? window.location.href : undefined,
+        action_source: "website",
+    };
+
+    return sendFacebookEvent(eventData);
+}
+
+// Track contact event (for phone calls, emails, chats, etc.)
+export async function trackContact(
+    value?: number,
+    currency: string = "USD",
+    userInfo?: Parameters<typeof getUserData>[0]
+): Promise<boolean> {
+    const eventData: FacebookEventData = {
+        event_name: "Contact",
         event_time: Math.floor(Date.now() / 1000),
         event_id: generateEventId(),
         user_data: getUserData(userInfo),
