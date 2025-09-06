@@ -14,8 +14,7 @@ import AdminLayout from "./components/layout/AdminLayout";
 import { DynamicFavicon } from "./components/DynamicFavicon";
 import Preloader from "./components/Preloader";
 import FacebookPixel from "./components/FacebookPixel";
-import FacebookPixelTest from "./components/FacebookPixelTest";
-import FacebookSettingsDebug from "./components/FacebookSettingsDebug";
+
 import HomePage from "./pages/HomePage";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
