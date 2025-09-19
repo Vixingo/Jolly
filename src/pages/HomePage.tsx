@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useFormatCurrency, truncateText } from '../lib/utils'
-import { supabase } from '../lib/supabase'
+import { getLocalProducts } from '../lib/local-data-service'
 
 // Add these imports at the top
 import { useNavigate } from 'react-router-dom'
@@ -39,17 +39,8 @@ export default function HomePage() {
   const fetchProducts = async () => {
     try {
       dispatch(setLoading(true))
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        dispatch(setError(error.message))
-        return
-      }
-
-      dispatch(setProducts(data || []))
+      const products = await getLocalProducts()
+      dispatch(setProducts(products))
     } catch (error) {
       dispatch(setError('Failed to fetch products'))
     } finally {

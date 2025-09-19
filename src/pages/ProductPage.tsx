@@ -4,7 +4,7 @@ import { useAppDispatch } from "../store/hooks";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Package, ShoppingCart } from "lucide-react";
-import { supabase } from "../lib/supabase";
+import { getLocalProductById } from "../lib/local-data-service";
 import { useFormatCurrency } from "../lib/utils";
 import { addToCart } from "../store/slices/cartSlice";
 import { setCartOpen } from "../store/slices/uiSlice";
@@ -34,14 +34,8 @@ export default function ProductPage() {
     const fetchProduct = async () => {
         if (!id) return;
         try {
-            const { data, error } = await supabase
-                .from("products")
-                .select("*")
-                .eq("id", id)
-                .single();
-
-            if (error) throw error;
-            setProduct(data);
+            const product = await getLocalProductById(id);
+            setProduct(product);
         } catch (error) {
             console.error("Error fetching product:", error);
         } finally {

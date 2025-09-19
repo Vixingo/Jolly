@@ -12,7 +12,8 @@ import {
   Edit,
   Trash2
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
+import { getLocalProducts } from '../../lib/local-data-service'
+import { createProductWithSync, updateProductWithSync, deleteProductWithSync } from '../../lib/sync-service'
 import { useFormatCurrency } from '../../lib/utils'
 // Removed unused imports: deleteFile, getFilePathFromUrl
 import { uploadProductImages, deleteProductImages } from '../../lib/product-image-utils'
@@ -38,17 +39,8 @@ export default function AdminProducts() {
   const fetchProducts = async () => {
     try {
       dispatch(setLoading(true))
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        dispatch(setError(error.message))
-        return
-      }
-
-      dispatch(setProducts(data || []))
+      const products = await getLocalProducts()
+      dispatch(setProducts(products))
     } catch {
       dispatch(setError('Failed to fetch products'))
     } finally {
@@ -80,14 +72,11 @@ export default function AdminProducts() {
       // First, delete the product images from storage using our utility
       await deleteProductImages(selectedProduct.id)
       
-      // Then delete the product from the database
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', selectedProduct.id)
+      // Then delete the product from the database and sync to local JSON
+      const success = await deleteProductWithSync(selectedProduct.id)
 
-      if (error) {
-        console.error('Error deleting product:', error)
+      if (!success) {
+        console.error('Error deleting product')
         return
       }
 
@@ -105,15 +94,11 @@ export default function AdminProducts() {
       const { tempFiles, ...productDataWithoutFiles } = productData
       
       if (modalMode === 'create') {
-        // First create the product without images
-        const { data, error } = await supabase
-          .from('products')
-          .insert([productDataWithoutFiles])
-          .select()
-          .single()
+        // First create the product without images and sync to local JSON
+        const data = await createProductWithSync(productDataWithoutFiles)
 
-        if (error) {
-          console.error('Error creating product:', error)
+        if (!data) {
+          console.error('Error creating product')
           return
         }
         
@@ -123,15 +108,10 @@ export default function AdminProducts() {
           
           // Update the product with the image URLs
           if (uploadedUrls.length > 0) {
-            const { data: updatedData, error: updateError } = await supabase
-              .from('products')
-              .update({ images: uploadedUrls })
-              .eq('id', data.id)
-              .select()
-              .single()
+            const updatedData = await updateProductWithSync(data.id, { images: uploadedUrls })
               
-            if (updateError) {
-              console.error('Error updating product with images:', updateError)
+            if (!updatedData) {
+              console.error('Error updating product with images')
             } else {
               // Use the updated data with images
               dispatch(addProduct(updatedData))
@@ -155,15 +135,10 @@ export default function AdminProducts() {
           ]
         }
         
-        const { data, error } = await supabase
-          .from('products')
-          .update(productDataWithoutFiles)
-          .eq('id', selectedProduct.id)
-          .select()
-          .single()
+        const data = await updateProductWithSync(selectedProduct.id, productDataWithoutFiles)
 
-        if (error) {
-          console.error('Error updating product:', error)
+        if (!data) {
+          console.error('Error updating product')
           return
         }
 

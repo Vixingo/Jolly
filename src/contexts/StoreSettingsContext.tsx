@@ -1,7 +1,8 @@
 import  { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import { getStoreSettings, type StoreSettings } from '../lib/store-settings'
+import { getLocalStoreSettings, type StoreSettings } from '../lib/local-data-service'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'
+import { setupRealtimeSync } from '../lib/sync-service'
 
 interface StoreSettingsContextType {
   storeSettings: StoreSettings | null
@@ -22,7 +23,7 @@ export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) 
   const loadStoreSettings = async () => {
     try {
       setIsLoading(true)
-      const settings = await getStoreSettings()
+      const settings = await getLocalStoreSettings()
       setStoreSettings(settings)
       
       // Apply theme colors if available
@@ -46,6 +47,8 @@ export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) 
 
   useEffect(() => {
     loadStoreSettings()
+    // Set up real-time sync for admin changes
+    setupRealtimeSync()
   }, [])
 
   const value: StoreSettingsContextType = {

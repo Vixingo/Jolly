@@ -1,11 +1,13 @@
 import { Outlet } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, Suspense, lazy } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { setTheme } from '../../store/slices/uiSlice'
 import Header from './Header'
 import CartSidebar from '../cart/CartSidebar'
-import SearchModal from '../search/SearchModal'
 import MobileMenu from './MobileMenu'
+
+// Lazy load SearchModal
+const SearchModal = lazy(() => import('../search/SearchModal'))
 
 export default function Layout() {
   const dispatch = useAppDispatch()
@@ -42,7 +44,9 @@ export default function Layout() {
         <Outlet />
       </main>
       <CartSidebar />
-      <SearchModal />
+      <Suspense fallback={null}>
+        <SearchModal />
+      </Suspense>
       <MobileMenu />
     </div>
   )
