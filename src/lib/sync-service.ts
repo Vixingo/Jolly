@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getLocalStoreSettings, getLocalProducts } from './local-data-service';
+
 import type { StoreSettings } from './store-settings';
 import type { Product } from '../store/slices/productsSlice';
 
