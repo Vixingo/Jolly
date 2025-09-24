@@ -8,8 +8,7 @@ import {
   Package, 
   User, 
   Settings,
-  ShoppingCart,
-  Search
+
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { Separator } from '../ui/separator'

@@ -1,4 +1,4 @@
-import  { createContext, useContext, useState, useEffect } from 'react'
+import  { createContext, useContext, useState, } from 'react'
 import type { ReactNode } from 'react'
 import { getLocalStoreSettings, type StoreSettings } from '../lib/local-data-service'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'

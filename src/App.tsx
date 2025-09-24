@@ -12,7 +12,7 @@ import { LoadingProvider, useLoading } from "./contexts/LoadingContext";
 import Layout from "./components/layout/Layout";
 import { DynamicFavicon } from "./components/DynamicFavicon";
 import Preloader from "./components/Preloader";
-import FacebookPixel from "./components/FacebookPixel";
+
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./App.css";
 
@@ -72,10 +72,10 @@ function App() {
                         <LoadingProvider>
                             <DocumentTitle />
                             <DynamicFavicon />
-                            {/* <FacebookPixel /> */}
+
                             <PreloaderWrapper />
-                            {/* <FacebookPixelTest /> */}
-                            {/* <FacebookSettingsDebug /> */}
+
+
                             <AppContent />
                         </LoadingProvider>
                     </StoreSettingsProvider>
