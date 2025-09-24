@@ -9,6 +9,7 @@ import {
     trackBeginCheckout as gtmTrackBeginCheckout, 
     trackPurchase as gtmTrackPurchase 
 } from './gtm-tracking';
+import { forceInitializeTracking, isTrackingReady } from './lazy-tracking';
 
 // Initialize dataLayer if it doesn't exist
 if (typeof window !== 'undefined' && !window.dataLayer) {
@@ -97,6 +98,11 @@ export async function trackViewContent(
     user?: TrackingUser,
     customParams?: Record<string, any>
 ) {
+    // Ensure tracking is initialized for important events
+    if (!isTrackingReady()) {
+        await forceInitializeTracking();
+    }
+
     const currency = product.currency || 'USD';
     
     // Push to dataLayer for GTM
@@ -143,6 +149,11 @@ export async function trackAddToCartEvent(
     user?: TrackingUser,
     customParams?: Record<string, any>
 ) {
+    // Ensure tracking is initialized for important events
+    if (!isTrackingReady()) {
+        await forceInitializeTracking();
+    }
+
     const currency = product.currency || 'USD';
     const value = product.price * product.quantity;
     
@@ -210,6 +221,11 @@ export async function trackBeginCheckoutEvent(
     user?: TrackingUser,
     customParams?: Record<string, any>
 ) {
+    // Ensure tracking is initialized for important events
+    if (!isTrackingReady()) {
+        await forceInitializeTracking();
+    }
+
     const currency = params.currency || products[0]?.currency || 'USD';
     const value = params.value || products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
     
@@ -270,6 +286,11 @@ export async function trackPurchaseEvent(
     user?: TrackingUser,
     customParams?: Record<string, any>
 ) {
+    // Ensure tracking is initialized for important events
+    if (!isTrackingReady()) {
+        await forceInitializeTracking();
+    }
+
     const currency = params.currency || products[0]?.currency || 'USD';
     const value = params.value || products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
     

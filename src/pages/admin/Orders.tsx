@@ -56,6 +56,7 @@ interface Order {
   created_at: string
   updated_at: string
   tracking_number?: string
+  customer_phone?: number
 }
 
 interface OrderItem {
@@ -74,6 +75,7 @@ interface Address {
   state: string
   postal_code: string
   country: string
+  customer_phone?: number
 }
 
 export default function AdminOrders() {
@@ -146,6 +148,7 @@ export default function AdminOrders() {
               postal_code: 'N/A',
               country: 'N/A'
             },
+            customer_phone : order.customer_phone || 'N/A',
             tracking_number: order.tracking_number || null
           }
         })
@@ -392,7 +395,7 @@ export default function AdminOrders() {
                       <TableCell className="font-medium">{order.id.substring(0, 8)}...</TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span>{order.user_name}</span>
+                          <span>{order.shipping_address.full_name}</span>
                           <span className="text-xs text-muted-foreground">{order.user_email}</span>
                         </div>
                       </TableCell>
@@ -589,10 +592,8 @@ export default function AdminOrders() {
                       {selectedOrder.shipping_address.address_line2 && (
                         <p>{selectedOrder.shipping_address.address_line2}</p>
                       )}
-                      <p>
-                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.postal_code}
-                      </p>
-                      <p>{selectedOrder.shipping_address.country}</p>
+                     
+                      <p>{selectedOrder.customer_phone || 'N/A'}</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -608,10 +609,8 @@ export default function AdminOrders() {
                           {selectedOrder.billing_address.address_line2 && (
                             <p>{selectedOrder.billing_address.address_line2}</p>
                           )}
-                          <p>
-                            {selectedOrder.billing_address.city}, {selectedOrder.billing_address.state} {selectedOrder.billing_address.postal_code}
-                          </p>
-                          <p>{selectedOrder.billing_address.country}</p>
+                        
+                          <p>{selectedOrder.customer_phone}</p>
                         </>
                       ) : (
                         <p className="text-gray-500 italic">Same as shipping address</p>

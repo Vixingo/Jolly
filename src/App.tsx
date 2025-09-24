@@ -72,7 +72,7 @@ function App() {
                         <LoadingProvider>
                             <DocumentTitle />
                             <DynamicFavicon />
-                            <FacebookPixel />
+                            {/* <FacebookPixel /> */}
                             <PreloaderWrapper />
                             {/* <FacebookPixelTest /> */}
                             {/* <FacebookSettingsDebug /> */}

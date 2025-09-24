@@ -13,13 +13,15 @@ import {
 } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { Separator } from '../ui/separator'
+import { useStoreLogo, useStoreName } from '@/contexts/StoreSettingsContext'
 
 export default function MobileMenu() {
   const dispatch = useAppDispatch()
   const { mobileMenuOpen } = useAppSelector(state => state.ui)
   const { user, profile, signOut } = useAuth()
   const location = useLocation()
-
+  const storeName = useStoreName()
+  const storeLogo = useStoreLogo()
   const isAdmin = profile?.role === 'admin'
 
   const menuItems = [
@@ -48,10 +50,24 @@ export default function MobileMenu() {
       <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-background shadow-xl z-50 transform transition-transform duration-300 ease-in-out md:hidden">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between px-4 py-3 border-b">
             <div className="flex items-center space-x-2">
-              <Package className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold text-foreground">Jolly</span>
+              {/* Logo */}
+          <Link to="/" className="flex items-center">
+            {storeLogo ? (
+              <img 
+                src={storeLogo} 
+                alt={storeName} 
+                className="h-10 w-auto max-w-[200px] object-contain"
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Package className="h-8 w-8 text-primary" />
+                <span className="text-xl font-bold text-foreground">{storeName}</span>
+              </div>
+            )}
+          </Link>
+              <span className="text-lg font-bold text-foreground">{storeName}</span>
             </div>
             <Button
               variant="ghost"
@@ -119,8 +135,8 @@ export default function MobileMenu() {
 
           {/* Footer */}
           <div className="border-t p-4 space-y-4">
-            {/* Quick Actions */}
-            <div className="grid grid-cols-2 gap-2">
+          
+            {/* <div className="grid grid-cols-2 gap-2">
               <Button
                 variant="outline"
                 size="sm"
@@ -143,11 +159,11 @@ export default function MobileMenu() {
                 className="w-full"
               >
                 <Search className="h-4 w-4 mr-2" />
-                Search
+                Track Order
               </Button>
-            </div>
+            </div> */}
 
-            {/* User Section */}
+           
             {user ? (
               <div className="space-y-3">
                 <div className="px-3 py-2 bg-muted rounded-lg">
@@ -172,12 +188,14 @@ export default function MobileMenu() {
               </div>
             ) : (
               <Button asChild size="sm" className="w-full">
-                <Link to="/login" onClick={() => dispatch(setMobileMenuOpen(false))}>
-                  Sign In
+                <Link to="tel:01711730819" onClick={() => dispatch(setMobileMenuOpen(false))}>
+                কল করুন 
+                ০১৭১১-৭৩০৮১৯
                 </Link>
               </Button>
             )}
           </div>
+
         </div>
       </div>
     </>

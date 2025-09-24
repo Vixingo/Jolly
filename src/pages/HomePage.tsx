@@ -76,8 +76,8 @@ export default function HomePage() {
       category: product.category
     }))
 
-    toast.success('Proceeding to checkout', {
-      position: 'bottom-left',
+    toast.success('অর্ডার কনফার্ম করুন ', {
+      position: 'top-right',
       className: 'lg:ml-4'
     })
     
@@ -268,7 +268,7 @@ export default function HomePage() {
                       }}
                       disabled={product.stock === 0}
                     >
-                      Buy Now
+                      অর্ডার করুন 
                     </Button>
                   </div>
                 </CardFooter>

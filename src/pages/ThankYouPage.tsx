@@ -214,14 +214,7 @@ export default function ThankYouPage() {
                                             }
                                         </p>
                                     )}
-                                    <p className="text-gray-600 mt-1">
-                                        {orderDetails.shipping_address.city},{" "}
-                                        {orderDetails.shipping_address.state}{" "}
-                                        {
-                                            orderDetails.shipping_address
-                                                .postal_code
-                                        }
-                                    </p>
+                                   
                                     {orderDetails.customer_phone && (
                                         <p className="text-gray-600">
                                             Phone: {orderDetails.customer_phone}
@@ -232,7 +225,7 @@ export default function ThankYouPage() {
                         </div>
 
                         {/* Billing Address */}
-                        {orderDetails.billing_address && (
+                        {/* {orderDetails.billing_address && (
                             <div className="border-t border-gray-200 pt-6">
                                 <h4 className="text-lg font-semibold text-gray-900 mb-4 px-1">
                                     Billing Details
@@ -260,14 +253,7 @@ export default function ThankYouPage() {
                                                 }
                                             </p>
                                         )}
-                                        <p className="text-gray-600 mt-1">
-                                            {orderDetails.billing_address.city},{" "}
-                                            {orderDetails.billing_address.state}{" "}
-                                            {
-                                                orderDetails.billing_address
-                                                    .postal_code
-                                            }
-                                        </p>
+                                       
                                         {orderDetails.customer_phone && (
                                             <p className="text-gray-600">
                                                 Phone:{" "}
@@ -277,7 +263,7 @@ export default function ThankYouPage() {
                                     </div>
                                 </div>
                             </div>
-                        )}
+                        )} */}
 
                         <div className="text-center pt-4 sm:pt-6">
                             <Button

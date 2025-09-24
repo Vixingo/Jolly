@@ -13,6 +13,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<void>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
+  initializeAuth: () => Promise<any>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -20,42 +21,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(null)
   const [profile, setProfileState] = useState<any>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
   const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    // Initialize storage buckets
-    initializeStorage().catch(error => {
-      console.error('Failed to initialize storage:', error)
-    })
+  // Initialize auth only when needed
+  const initializeAuth = async () => {
+    if (isInitialized) return
     
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    try {
+      // Initialize storage buckets
+      await initializeStorage()
+      
+      // Get initial session
+      const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         setUserState(session.user)
         dispatch(setUser(session.user))
         fetchProfile(session.user.id)
       }
       dispatch(setLoading(false))
-    })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_, session) => {
-        if (session) {
-          setUserState(session.user)
-          dispatch(setUser(session.user))
-          fetchProfile(session.user.id)
-        } else {
-          setUserState(null)
-          setProfileState(null)
-          dispatch(setUser(null))
-          dispatch(setProfile(null))
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (_, session) => {
+          if (session) {
+            setUserState(session.user)
+            dispatch(setUser(session.user))
+            fetchProfile(session.user.id)
+          } else {
+            setUserState(null)
+            setProfileState(null)
+            dispatch(setUser(null))
+            dispatch(setProfile(null))
+          }
+          dispatch(setLoading(false))
         }
-        dispatch(setLoading(false))
-      }
-    )
+      )
+      
+      setIsInitialized(true)
+      return subscription
+    } catch (error) {
+      console.error('Failed to initialize auth:', error)
+      dispatch(setLoading(false))
+    }
+  }
 
-    return () => subscription.unsubscribe()
+  // Set loading to false immediately for better LCP
+  useEffect(() => {
+    dispatch(setLoading(false))
   }, [dispatch])
 
   async function fetchProfile(userId: string) {
@@ -80,6 +93,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signIn(email: string, password: string) {
     try {
+      // Initialize auth if not already done
+      await initializeAuth()
+      
       dispatch(setLoading(true))
       dispatch(setError(null))
 
@@ -102,6 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signUp(email: string, password: string, fullName: string) {
     try {
+      // Initialize auth if not already done
+      await initializeAuth()
+      
       dispatch(setLoading(true))
       dispatch(setError(null))
 
@@ -147,6 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signOut() {
     try {
+      // Initialize auth if not already done
+      await initializeAuth()
+      
       const { error } = await supabase.auth.signOut()
       if (error) {
         console.error('Error signing out:', error)
@@ -158,6 +180,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function resetPassword(email: string) {
     try {
+      // Initialize auth if not already done
+      await initializeAuth()
+      
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
@@ -178,6 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     resetPassword,
+    initializeAuth,
   }
 
   return (

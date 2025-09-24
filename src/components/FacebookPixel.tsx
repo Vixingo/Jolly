@@ -8,8 +8,13 @@ declare global {
     }
 }
 
-// Initialize Facebook Pixel
+// Global flag to track if Facebook Pixel is initialized
+let isPixelInitialized = false;
+
+// Initialize Facebook Pixel (deferred)
 const initFacebookPixel = async () => {
+    if (isPixelInitialized) return;
+    
     try {
         console.log("Initializing Facebook Pixel...");
         const { isConfigured, settings, error } = await checkFacebookSettings();
@@ -65,18 +70,23 @@ const initFacebookPixel = async () => {
         // Log PageView event
         window.fbq("track", "PageView");
 
+        isPixelInitialized = true;
         console.log("Facebook Pixel initialized with ID:", pixel_id);
     } catch (error) {
         console.error("Error initializing Facebook Pixel:", error);
     }
 };
 
+// Export function to initialize pixel when needed
+export { initFacebookPixel };
+
 const FacebookPixel: React.FC = () => {
     const location = useLocation();
 
-    // Initialize Facebook Pixel on component mount
+    // Don't initialize on mount - wait for user interaction
     useEffect(() => {
-        initFacebookPixel();
+        // Facebook Pixel will be initialized when user adds to cart or starts checkout
+        // This improves LCP by deferring non-critical network requests
     }, []);
 
     // Track page views when route changes

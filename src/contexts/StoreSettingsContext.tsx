@@ -2,7 +2,6 @@ import  { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { getLocalStoreSettings, type StoreSettings } from '../lib/local-data-service'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'
-import { setupRealtimeSync } from '../lib/sync-service'
 
 interface StoreSettingsContextType {
   storeSettings: StoreSettings | null
@@ -17,16 +16,33 @@ interface StoreSettingsProviderProps {
 }
 
 export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) {
-  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  const loadStoreSettings = async () => {
+  // Load settings synchronously on initialization
+  const [storeSettings] = useState<StoreSettings | null>(() => {
     try {
-      setIsLoading(true)
-      const settings = await getLocalStoreSettings()
-      setStoreSettings(settings)
+      const settings = getLocalStoreSettings()
       
-      // Apply theme colors if available
+      // Apply theme colors immediately if available
+      if (settings) {
+        applyThemeColors({
+          primary: settings.theme_primary_color || DEFAULT_THEME_COLORS.primary,
+          secondary: settings.theme_secondary_color || DEFAULT_THEME_COLORS.secondary,
+          accent: settings.theme_accent_color || DEFAULT_THEME_COLORS.accent
+        })
+      }
+      
+      return settings
+    } catch (error) {
+      console.error('Error loading store settings:', error)
+      return null
+    }
+  })
+  
+  const [isLoading] = useState(false) // No loading state needed for local data
+
+  const refreshStoreSettings = async () => {
+    // For refresh, we still need async behavior for potential API calls
+    try {
+      const settings = getLocalStoreSettings()
       if (settings) {
         applyThemeColors({
           primary: settings.theme_primary_color || DEFAULT_THEME_COLORS.primary,
@@ -35,21 +51,12 @@ export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) 
         })
       }
     } catch (error) {
-      console.error('Error loading store settings:', error)
-    } finally {
-      setIsLoading(false)
+      console.error('Error refreshing store settings:', error)
     }
   }
 
-  const refreshStoreSettings = async () => {
-    await loadStoreSettings()
-  }
-
-  useEffect(() => {
-    loadStoreSettings()
-    // Set up real-time sync for admin changes
-    setupRealtimeSync()
-  }, [])
+  // Note: Realtime sync is now deferred until admin actions are performed
+  // This improves initial page load performance by avoiding unnecessary connections
 
   const value: StoreSettingsContextType = {
     storeSettings,

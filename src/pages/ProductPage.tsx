@@ -78,8 +78,8 @@ export default function ProductPage() {
             })
         );
 
-        toast.success("Proceeding to checkout", {
-            position: "bottom-left",
+        toast.success("অর্ডার কনফার্ম করুন ", {  
+            position: "top-right",
             className: "lg:ml-4",
         });
 
@@ -200,7 +200,7 @@ export default function ProductPage() {
                             className="flex-1"
                             disabled={!product || product.stock === 0}
                         >
-                            Buy Now
+                             অর্ডার করুন 
                         </Button>
                     </div>
                 </div>
@@ -223,7 +223,7 @@ export default function ProductPage() {
                         className="flex-1"
                         disabled={!product || product.stock === 0}
                     >
-                        Buy Now
+অর্ডার করুন 
                     </Button>
                 </div>
             </div>

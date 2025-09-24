@@ -9,11 +9,8 @@ import type { Product } from '../store/slices/productsSlice';
  * Get store settings from local JSON file
  * Replaces the getStoreSettings function from store-settings.ts
  */
-export async function getLocalStoreSettings(): Promise<StoreSettings | null> {
+export function getLocalStoreSettings(): StoreSettings | null {
   try {
-    // Simulate async behavior to match original API
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
     return storeSettingsData as StoreSettings;
   } catch (error) {
     console.error('Error loading local store settings:', error);
@@ -25,11 +22,8 @@ export async function getLocalStoreSettings(): Promise<StoreSettings | null> {
  * Get all products from local JSON file
  * Replaces Supabase product fetching
  */
-export async function getLocalProducts(): Promise<Product[]> {
+export function getLocalProducts(): Product[] {
   try {
-    // Simulate async behavior to match original API
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
     return productsData as Product[];
   } catch (error) {
     console.error('Error loading local products:', error);
@@ -40,9 +34,9 @@ export async function getLocalProducts(): Promise<Product[]> {
 /**
  * Get a single product by ID from local JSON file
  */
-export async function getLocalProductById(id: string): Promise<Product | null> {
+export function getLocalProductById(id: string): Product | null {
   try {
-    const products = await getLocalProducts();
+    const products = getLocalProducts();
     return products.find(product => product.id === id) || null;
   } catch (error) {
     console.error('Error loading local product by ID:', error);
@@ -53,9 +47,9 @@ export async function getLocalProductById(id: string): Promise<Product | null> {
 /**
  * Get products by category from local JSON file
  */
-export async function getLocalProductsByCategory(category: string): Promise<Product[]> {
+export function getLocalProductsByCategory(category: string): Product[] {
   try {
-    const products = await getLocalProducts();
+    const products = getLocalProducts();
     return products.filter(product => product.category === category);
   } catch (error) {
     console.error('Error loading local products by category:', error);
@@ -66,9 +60,9 @@ export async function getLocalProductsByCategory(category: string): Promise<Prod
 /**
  * Search products by name or description from local JSON file
  */
-export async function searchLocalProducts(query: string): Promise<Product[]> {
+export function searchLocalProducts(query: string): Product[] {
   try {
-    const products = await getLocalProducts();
+    const products = getLocalProducts();
     const lowercaseQuery = query.toLowerCase();
     
     return products.filter(product => 
@@ -84,9 +78,9 @@ export async function searchLocalProducts(query: string): Promise<Product[]> {
 /**
  * Get unique categories from local products
  */
-export async function getLocalCategories(): Promise<string[]> {
+export function getLocalCategories(): string[] {
   try {
-    const products = await getLocalProducts();
+    const products = getLocalProducts();
     const categories = [...new Set(products.map(product => product.category))];
     return categories.filter(Boolean); // Remove any null/undefined categories
   } catch (error) {

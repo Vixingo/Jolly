@@ -21,6 +21,8 @@ import { useFormatCurrency, truncateText } from "../lib/utils";
 import { toast } from "sonner";
 import { setCartOpen } from "../store/slices/uiSlice";
 import { getLocalProducts } from "../lib/local-data-service";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 // import { InlineWhatsAppButton } from "../components/support/WhatsAppButton";
 
 export default function ProductsPage() {
@@ -91,8 +93,8 @@ export default function ProductsPage() {
             })
         );
 
-        toast.success("Proceeding to checkout", {
-            position: "bottom-left",
+        toast.success("অর্ডার কনফার্ম করুন ", {
+            position: "top-right",
             className: "lg:ml-4",
         });
 
@@ -129,24 +131,33 @@ export default function ProductsPage() {
             {/* Category Filter */}
             <div className="mb-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-3xl font-bold">Our Products</h1>
+                    <h1 className="text-2xl font-bold">Our Products</h1>
                     <div className="flex items-center gap-4">
                         {/* <InlineWhatsAppButton message="Hi! I need help choosing the right product." /> */}
                         <Filter className="h-5 w-5 text-muted-foreground" />
-                        <select
+                        <Select
                             value={selectedCategory}
-                            onChange={(e) =>
-                                setSelectedCategory(e.target.value)
+                            onValueChange={(value) =>
+                                setSelectedCategory(value)
                             }
-                            className="p-2 border rounded-md bg-background"
                         >
-                            <option value="all">All Categories</option>
+                            <SelectTrigger>
+                                <SelectValue placeholder="All Categories" />
+                            </SelectTrigger>
+                            <SelectContent>
+
+                            <SelectGroup >
+                                <SelectLabel>Category</SelectLabel>
+                                <SelectItem value="all">All Categories</SelectItem>
                             {categories.map((category) => (
-                                <option key={category} value={category}>
+                                    
+                                <SelectItem value={category} key={category}>
                                     {category}
-                                </option>
-                            ))}
-                        </select>
+                                </SelectItem>
+                        ))}                                
+                        </SelectGroup>
+                        </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </div>
@@ -219,7 +230,7 @@ export default function ProductsPage() {
                                     }}
                                     disabled={product.stock === 0}
                                 >
-                                    Buy Now
+                                    অর্ডার করুন 
                                 </Button>
                             </div>
                         </CardFooter>

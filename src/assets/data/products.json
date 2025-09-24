@@ -5,7 +5,7 @@
     "description": "Betta",
     "price": 999,
     "images": [
-      "https://gsfvkpsszbbnhdvnvanb.supabase.co/storage/v1/object/public/product-images/products/bzkyrtetaqu_1758236803135.jpeg"
+      "/src/assets/images/products/58e0871e-1a07-4d22-b5cd-50cdb76bc50c/image-1.jpeg"
     ],
     "category": "Beauty",
     "stock": 12,
@@ -18,7 +18,7 @@
     "description": "ইনসুলিন গাছ একটি ঔষধি উদ্ভিদ এবং ডায়াবেটিসের জন্য জাদুকরী। ডায়াবেটিস রোগীদের এক মাস ধরে ইনসুলিন গাছের পাতা চিবিয়ে খেতে হয়। অর্থাৎ, রোগীকে এক সপ্তাহ ধরে প্রতিদিন সকাল ও সন্ধ্যায় দুটি করে পাতা খেতে হবে।",
     "price": 1000,
     "images": [
-      "https://gsfvkpsszbbnhdvnvanb.supabase.co/storage/v1/object/public/product-images/products/9pzey0chk6b_1755544434427.jpg"
+      "/src/assets/images/products/019acb10-5353-4a76-b3c1-bca58899dbb2/image-1.jpg"
     ],
     "category": "Health",
     "stock": 100,

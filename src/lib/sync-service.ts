@@ -8,6 +8,9 @@ import type { Product } from '../store/slices/productsSlice';
  * Ensures local data stays up-to-date when admin makes changes
  */
 
+// Global flag to track if realtime sync has been initialized
+let isRealtimeSyncInitialized = false;
+
 /**
  * Updates local store settings (browser-compatible)
  * In a real application, this would trigger a build process or API call
@@ -127,6 +130,11 @@ export async function syncProductsFromSupabase(): Promise<void> {
  * Automatically updates local JSON files when data changes
  */
 export function setupRealtimeSync(): void {
+  // Prevent multiple initializations
+  if (isRealtimeSyncInitialized) {
+    return;
+  }
+
   // Listen for store settings changes
   supabase
     .channel('store_settings_changes')
@@ -161,6 +169,7 @@ export function setupRealtimeSync(): void {
     )
     .subscribe();
 
+  isRealtimeSyncInitialized = true;
   console.log('Real-time sync listeners set up successfully');
 }
 
@@ -169,6 +178,9 @@ export function setupRealtimeSync(): void {
  */
 export async function updateStoreSettingsWithSync(settings: Partial<StoreSettings>): Promise<StoreSettings | null> {
   try {
+    // Initialize realtime sync when admin actions are performed
+    setupRealtimeSync();
+
     // Update in Supabase
     const { data, error } = await supabase
       .from('store_settings')
@@ -198,6 +210,9 @@ export async function updateStoreSettingsWithSync(settings: Partial<StoreSetting
  */
 export async function updateProductWithSync(productId: string, updates: Partial<Product>): Promise<Product | null> {
   try {
+    // Initialize realtime sync when admin actions are performed
+    setupRealtimeSync();
+
     // Update in Supabase
     const { data, error } = await supabase
       .from('products')
@@ -226,6 +241,9 @@ export async function updateProductWithSync(productId: string, updates: Partial<
  */
 export async function createProductWithSync(product: Partial<Product>): Promise<Product | null> {
   try {
+    // Initialize realtime sync when admin actions are performed
+    setupRealtimeSync();
+
     // Create in Supabase
     const { data, error } = await supabase
       .from('products')
@@ -253,6 +271,9 @@ export async function createProductWithSync(product: Partial<Product>): Promise<
  */
 export async function deleteProductWithSync(productId: string): Promise<boolean> {
   try {
+    // Initialize realtime sync when admin actions are performed
+    setupRealtimeSync();
+
     // Delete from Supabase
     const { error } = await supabase
       .from('products')

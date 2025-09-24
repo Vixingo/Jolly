@@ -131,7 +131,7 @@ export default function CheckoutPage() {
         );
 
         if (!isValid) {
-            toast.error("Please fix the form errors");
+            toast.error("সবকিছু ঠিক আছে কি না চেক করুন ");
             return;
         }
 
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
             navigate("/thank-you", { state: { orderDetails: data } });
         } catch (error) {
             console.error("Error placing order:", error);
-            toast.error("Failed to place order");
+            toast.error("ফোন নাম্বার কি সঠিক না চেক করুন");
         } finally {
             setIsLoading(false);
         }
@@ -257,12 +257,68 @@ export default function CheckoutPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="container mx-auto px-4 pb-8 max-w-3xl">
             <div className="space-y-4">
+
+                            {/* Order Summary Section */}
+                            <div className="mt-6 p-3 bg-muted rounded-lg">
+                                <h3 className="text-sm font-medium mb-2">
+                                    Order Summary
+                                </h3>
+                                <div className="space-y-2 text-sm">
+                                    {items.map((item) => (
+                                        <div
+                                            key={item.id}
+                                            className="flex items-center justify-between"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="relative">
+                                                    <div className="w-10 h-10 rounded-md overflow-hidden bg-muted">
+                                                        <img
+                                                            src={item.image}
+                                                            alt={item.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
+                                                    <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
+                                                        {item.quantity}
+                                                    </div>
+                                                </div>
+                                                <span className="font-medium truncate max-w-[150px]">
+                                                    {item.name}
+                                                </span>
+                                            </div>
+                                            <span>
+                                                {formatCurrency(
+                                                    item.price * item.quantity
+                                                )}
+                                            </span>
+                                        </div>
+                                    ))}
+                                    <div className="border-t pt-2 mt-2">
+                                        <div className="flex justify-between">
+                                            <span>Subtotal</span>
+                                            <span>{formatCurrency(total)}</span>
+                                        </div>
+                                        <div className="flex justify-between text-muted-foreground">
+                                            <span>Delivery Charge</span>
+                                            <span>
+                                                {formatCurrency(deliveryCharge)}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between font-medium text-lg mt-2">
+                                            <span>Total</span>
+                                            <span>
+                                                {formatCurrency(finalTotal)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                 {/* Shipping Information Card */}
                 <Card>
                     <CardHeader className="pb-4">
-                        <CardTitle>Shipping Information </CardTitle>
+                        <CardTitle>অর্ডার করতে নিচের তথ্যগুলি দিন </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4 ">
@@ -272,7 +328,7 @@ export default function CheckoutPage() {
                                         htmlFor="fullName"
                                         className="text-sm font-medium"
                                     >
-                                        Full Name
+                                        নাম
                                     </Label>
                                     <Input
                                         id="fullName"
@@ -288,7 +344,8 @@ export default function CheckoutPage() {
                                                 ? "border-red-500"
                                                 : ""
                                         }`}
-                                        placeholder="John Doe"
+                                        placeholder="আপনার নাম"
+                                        autoFocus
                                     />
                                 </div>
 
@@ -297,7 +354,7 @@ export default function CheckoutPage() {
                                         htmlFor="phoneNumber"
                                         className="text-sm font-medium"
                                     >
-                                        Phone Number
+                                        মোবাইল নাম্বার
                                     </Label>
 
                                     <Input
@@ -322,7 +379,7 @@ export default function CheckoutPage() {
                                                 ? "border-red-500"
                                                 : ""
                                         }`}
-                                        placeholder="+1234567890"
+                                        placeholder=" ১১ ডিজিট মোবাইল নাম্বার"
                                     />
                                 </div>
                             </div>
@@ -332,8 +389,7 @@ export default function CheckoutPage() {
                                     htmlFor="address"
                                     className="text-sm font-medium"
                                 >
-                                    Shipping Address
-                                </Label>
+ঠিকানা                                </Label>
                                 <Textarea
                                     id="address"
                                     value={formData.address}
@@ -346,7 +402,7 @@ export default function CheckoutPage() {
                                     className={`mt-1 ${
                                         errors.address ? "border-red-500" : ""
                                     }`}
-                                    placeholder="Enter your complete shipping address"
+                                    placeholder="আপনার বাসার সম্পূর্ণ ঠিকানা"
                                     rows={3}
                                 />
                             </div>
@@ -375,7 +431,7 @@ export default function CheckoutPage() {
                                             className="flex items-center gap-2 cursor-pointer flex-1"
                                         >
                                             <CreditCard className="h-4 w-4" />
-                                            <span>Cash on Delivery</span>
+                                            <span> ক্যাশ অন ডেলিভারি</span>
                                         </Label>
                                     </div>
 
@@ -465,68 +521,16 @@ export default function CheckoutPage() {
 
                             <Separator />
 
-                            {/* Order Summary Section */}
-                            <div className="mt-6 p-3 bg-muted rounded-lg">
-                                <h3 className="text-sm font-medium mb-2">
-                                    Order Summary
-                                </h3>
-                                <div className="space-y-2 text-sm">
-                                    {items.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            className="flex items-center justify-between"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="relative">
-                                                    <div className="w-10 h-10 rounded-md overflow-hidden bg-muted">
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    </div>
-                                                    <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium">
-                                                        {item.quantity}
-                                                    </div>
-                                                </div>
-                                                <span className="font-medium truncate max-w-[150px]">
-                                                    {item.name}
-                                                </span>
-                                            </div>
-                                            <span>
-                                                {formatCurrency(
-                                                    item.price * item.quantity
-                                                )}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    <div className="border-t pt-2 mt-2">
-                                        <div className="flex justify-between">
-                                            <span>Subtotal</span>
-                                            <span>{formatCurrency(total)}</span>
-                                        </div>
-                                        <div className="flex justify-between text-muted-foreground">
-                                            <span>Delivery Charge</span>
-                                            <span>
-                                                {formatCurrency(deliveryCharge)}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between font-medium text-lg mt-2">
-                                            <span>Total</span>
-                                            <span>
-                                                {formatCurrency(finalTotal)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
                             {/* Place Order Button - Fixed on mobile */}
                             <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t md:relative md:p-0 md:border-0 md:bg-transparent">
                                 <Button
                                     type="submit"
-                                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-lg animate-[jiggle_6s_ease-in-out_infinite]"
+                                    className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary transition-all duration-300 hover:scale-[1.02] hover:shadow-lg animate-[jiggle_.86s_ease-in-out_infinite]"
                                     size="lg"
+                                    style={{
+                                        animationDelay: "2s",
+                                    }}
                                     disabled={isLoading || isProcessingPayment}
                                 >
                                     {isProcessingPayment
@@ -534,7 +538,7 @@ export default function CheckoutPage() {
                                         : isLoading
                                         ? "Processing..."
                                         : selectedPaymentMethod === "cod"
-                                        ? `Place Order - ${formatCurrency(
+                                        ? `অর্ডার কনফার্ম করুন - ${formatCurrency(
                                               finalTotal
                                           )}`
                                         : `Pay Online - ${formatCurrency(
@@ -545,12 +549,21 @@ export default function CheckoutPage() {
 
                             <style>{`
         @keyframes jiggle {
-          0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-          2%, 8% { transform: translate3d(-4px, 0, 0) scale(1.02); }
-          4%, 6% { transform: translate3d(8px, 0, 0) scale(1.02); }
-          15%, 85% { transform: translate3d(0, 0, 0) scale(1); }
-          87%, 93% { transform: translate3d(-4px, 0, 0) scale(1.02); }
-          89%, 91% { transform: translate3d(8px, 0, 0) scale(1.02); }
+ 0%, 90% {
+        transform:scaleX(1)
+    }
+
+ 20% {
+        transform:scale3d(.97, .97, .97) rotate(-1deg)
+    }
+
+    30%, 50%, 70% {
+        transform:scale3d(1.03, 1.03, 1.03) rotate(1deg)
+    }
+
+    40%, 60%, 80% {
+        transform:scale3d(1.03, 1.03, 1.03) rotate(-1deg)
+    }
         }
       `}</style>
                         </form>
