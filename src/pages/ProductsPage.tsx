@@ -20,8 +20,8 @@ import { useNavigate } from "react-router-dom";
 import { useFormatCurrency, truncateText } from "../lib/utils";
 import { toast } from "sonner";
 import { setCartOpen } from "../store/slices/uiSlice";
-import { getLocalProducts } from "../lib/local-data-service";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/lib/supabase";
 
 // import { InlineWhatsAppButton } from "../components/support/WhatsAppButton";
 
@@ -50,16 +50,25 @@ export default function ProductsPage() {
     }, [selectedCategory]);
 
     const fetchProducts = async () => {
-        try {
-            dispatch(setLoading(true));
-            const products = await getLocalProducts();
-            dispatch(setProducts(products));
-        } catch (error) {
-            dispatch(setError("Failed to fetch products"));
-        } finally {
-            dispatch(setLoading(false));
-        }
-    };
+    try {
+      dispatch(setLoading(true))
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        dispatch(setError(error.message))
+        return
+      }
+
+      dispatch(setProducts(data || []))
+    } catch (error) {
+      dispatch(setError('Failed to fetch products'))
+    } finally {
+      dispatch(setLoading(false))
+    }
+  }
 
     const handleAddToCart = (product: any) => {
         dispatch(

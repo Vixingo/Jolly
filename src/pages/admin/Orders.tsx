@@ -11,7 +11,9 @@ import {
   Calendar,
   User,
   Clock,
-  Filter
+  Filter,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useFormatCurrency } from '../../lib/utils'
@@ -87,6 +89,9 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isOrderDetailsOpen, setIsOrderDetailsOpen] = useState(false)
   const [activeTab, setActiveTab] = useState('all')
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [deleteMode, setDeleteMode] = useState<'selected' | 'all'>('selected')
   
   const ordersPerPage = 10
   const formatCurrency = useFormatCurrency()
@@ -196,6 +201,63 @@ export default function AdminOrders() {
     }
   }
 
+  const handleSelectOrder = (orderId: string) => {
+    setSelectedOrders(prev => 
+      prev.includes(orderId) 
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    )
+  }
+
+  const handleSelectAllOrders = () => {
+    if (selectedOrders.length === filteredOrders.length) {
+      setSelectedOrders([])
+    } else {
+      setSelectedOrders(filteredOrders.map(order => order.id))
+    }
+  }
+
+  const handleDeleteOrders = async () => {
+    try {
+      let orderIdsToDelete: string[] = []
+      
+      if (deleteMode === 'all') {
+        orderIdsToDelete = orders.map(order => order.id)
+      } else {
+        orderIdsToDelete = selectedOrders
+      }
+
+      if (orderIdsToDelete.length === 0) {
+        toast.error('No orders selected for deletion')
+        return
+      }
+
+      const { error } = await supabase
+        .from('orders')
+        .delete()
+        .in('id', orderIdsToDelete)
+
+      if (error) {
+        throw error
+      }
+
+      // Update local state
+      setOrders(orders.filter(order => !orderIdsToDelete.includes(order.id)))
+      setSelectedOrders([])
+      setIsDeleteDialogOpen(false)
+      
+      toast.success(`Successfully deleted ${orderIdsToDelete.length} order(s)`)
+    } catch (error) {
+      console.error('Error deleting orders:', error)
+      toast.error('Failed to delete orders')
+    }
+  }
+
+  const openDeleteDialog = (mode: 'selected' | 'all') => {
+    setDeleteMode(mode)
+    setIsDeleteDialogOpen(true)
+  }
+
   const getStatusBadgeVariant = (status: Order['status']) => {
     switch (status) {
       case 'pending': return 'secondary'
@@ -302,10 +364,33 @@ export default function AdminOrders() {
           <h1 className="text-3xl font-bold">Order Management</h1>
           <p className="text-muted-foreground mt-1">View and manage customer orders</p>
         </div>
-        <Button variant="outline" size="sm" className="w-full sm:w-auto">
-          <Download className="h-4 w-4 mr-2" />
-          Export Orders
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          {selectedOrders.length > 0 && (
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="w-full sm:w-auto"
+              onClick={() => openDeleteDialog('selected')}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Selected ({selectedOrders.length})
+            </Button>
+          )}
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full sm:w-auto"
+            onClick={() => openDeleteDialog('all')}
+            disabled={orders.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete All Orders
+          </Button>
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+            <Download className="h-4 w-4 mr-2" />
+            Export Orders
+          </Button>
+        </div>
       </div>
 
       {/* Tabs for quick filtering */}
@@ -379,6 +464,14 @@ export default function AdminOrders() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-[50px]">
+                    <input
+                      type="checkbox"
+                      checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
+                      onChange={handleSelectAllOrders}
+                      className="rounded border-gray-300"
+                    />
+                  </TableHead>
                   <TableHead className="w-[100px]">Order ID</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Date</TableHead>
@@ -392,6 +485,14 @@ export default function AdminOrders() {
                 {paginatedOrders.length > 0 ? (
                   paginatedOrders.map((order) => (
                     <TableRow key={order.id}>
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedOrders.includes(order.id)}
+                          onChange={() => handleSelectOrder(order.id)}
+                          className="rounded border-gray-300"
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{order.id.substring(0, 8)}...</TableCell>
                       <TableCell>
                         <div className="flex flex-col">
@@ -421,20 +522,33 @@ export default function AdminOrders() {
                         {formatCurrency(order.total)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleViewOrder(order)}
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">View</span>
-                        </Button>
+                        <div className="flex gap-1 justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => handleViewOrder(order)}
+                          >
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">View</span>
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => {
+                              setSelectedOrders([order.id])
+                              openDeleteDialog('selected')
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-10">
+                    <TableCell colSpan={8} className="text-center py-10">
                       <div className="flex flex-col items-center justify-center text-center">
                         <ShoppingCart className="h-10 w-10 text-muted-foreground mb-3" />
                         <h3 className="text-lg font-semibold">No orders found</h3>
@@ -666,6 +780,49 @@ export default function AdminOrders() {
                     Cancelled
                   </Button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg shadow-lg w-full max-w-md">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-100 rounded-full">
+                  <AlertTriangle className="h-6 w-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Confirm Deletion</h3>
+                  <p className="text-sm text-muted-foreground">This action cannot be undone</p>
+                </div>
+              </div>
+              
+              <div className="mb-6">
+                {deleteMode === 'all' ? (
+                  <p>Are you sure you want to delete <strong>all {orders.length} orders</strong>? This will permanently remove all order data from the system.</p>
+                ) : (
+                  <p>Are you sure you want to delete <strong>{selectedOrders.length} selected order(s)</strong>? This will permanently remove the selected orders from the system.</p>
+                )}
+              </div>
+              
+              <div className="flex gap-3 justify-end">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsDeleteDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDeleteOrders}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete {deleteMode === 'all' ? 'All' : 'Selected'}
+                </Button>
               </div>
             </div>
           </div>

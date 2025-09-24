@@ -4,7 +4,6 @@ import { useAppDispatch } from "../store/hooks";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Package, ShoppingCart } from "lucide-react";
-import { getLocalProductById } from "../lib/local-data-service";
 import { useFormatCurrency } from "../lib/utils";
 import { addToCart } from "../store/slices/cartSlice";
 import { setCartOpen } from "../store/slices/uiSlice";
@@ -18,6 +17,7 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel";
 import WhatsAppButton from "../components/support/WhatsAppButton";
+import { supabase } from "@/lib/supabase";
 
 export default function ProductPage() {
     const { id } = useParams();
@@ -34,10 +34,22 @@ export default function ProductPage() {
     const fetchProduct = async () => {
         if (!id) return;
         try {
-            const product = await getLocalProductById(id);
-            setProduct(product);
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('products')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) {
+                console.error("Error fetching product:", error);
+                setProduct(null);
+            } else {
+                setProduct(data);
+            }
         } catch (error) {
             console.error("Error fetching product:", error);
+            setProduct(null);
         } finally {
             setLoading(false);
         }

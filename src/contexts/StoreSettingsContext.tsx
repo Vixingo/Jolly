@@ -1,6 +1,6 @@
-import  { createContext, useContext, useState, } from 'react'
+import  { createContext, useContext, useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
-import { getLocalStoreSettings, type StoreSettings } from '../lib/local-data-service'
+import { getStoreSettings, type StoreSettings } from '../lib/store-settings'
 import { applyThemeColors, DEFAULT_THEME_COLORS } from '../lib/theme-utils'
 
 interface StoreSettingsContextType {
@@ -16,10 +16,13 @@ interface StoreSettingsProviderProps {
 }
 
 export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) {
-  // Load settings synchronously on initialization
-  const [storeSettings] = useState<StoreSettings | null>(() => {
+  const [storeSettings, setStoreSettings] = useState<StoreSettings | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  const loadStoreSettings = async () => {
     try {
-      const settings = getLocalStoreSettings()
+      setIsLoading(true)
+      const settings = await getStoreSettings()
       
       // Apply theme colors immediately if available
       if (settings) {
@@ -30,29 +33,20 @@ export function StoreSettingsProvider({ children }: StoreSettingsProviderProps) 
         })
       }
       
-      return settings
+      setStoreSettings(settings)
     } catch (error) {
       console.error('Error loading store settings:', error)
-      return null
+    } finally {
+      setIsLoading(false)
     }
-  })
-  
-  const [isLoading] = useState(false) // No loading state needed for local data
+  }
+
+  useEffect(() => {
+    loadStoreSettings()
+  }, [])
 
   const refreshStoreSettings = async () => {
-    // For refresh, we still need async behavior for potential API calls
-    try {
-      const settings = getLocalStoreSettings()
-      if (settings) {
-        applyThemeColors({
-          primary: settings.theme_primary_color || DEFAULT_THEME_COLORS.primary,
-          secondary: settings.theme_secondary_color || DEFAULT_THEME_COLORS.secondary,
-          accent: settings.theme_accent_color || DEFAULT_THEME_COLORS.accent
-        })
-      }
-    } catch (error) {
-      console.error('Error refreshing store settings:', error)
-    }
+    await loadStoreSettings()
   }
 
   // Note: Realtime sync is now deferred until admin actions are performed
