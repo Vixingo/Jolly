@@ -27,6 +27,10 @@ const ThankYouPage = React.lazy(() => import("./pages/ThankYouPage"));
 const PaymentSuccessPage = React.lazy(() => import("./pages/PaymentSuccessPage"));
 const PaymentFailedPage = React.lazy(() => import("./pages/PaymentFailedPage"));
 const TrackOrderPage = React.lazy(() => import("./pages/TrackOrderPage"));
+const PrivacyPolicyPage = React.lazy(() => import("./pages/PrivacyPolicyPage"));
+const TermsOfServicePage = React.lazy(() => import("./pages/TermsOfServicePage"));
+const ReturnPolicyPage = React.lazy(() => import("./pages/ReturnPolicyPage"));
+const ShippingPolicyPage = React.lazy(() => import("./pages/ShippingPolicyPage"));
 
 // Lazy load admin components
 const AdminLayout = React.lazy(() => import("./components/layout/AdminLayout"));
@@ -114,6 +118,10 @@ function AppContent() {
                             element={<PaymentFailedPage />}
                         />
                         <Route path="track-order" element={<TrackOrderPage />} />
+                        <Route path="privacy" element={<PrivacyPolicyPage />} />
+                        <Route path="terms" element={<TermsOfServicePage />} />
+                        <Route path="returns" element={<ReturnPolicyPage />} />
+                        <Route path="shipping" element={<ShippingPolicyPage />} />
                     </Route>
 
                     {/* Admin routes */}

@@ -79,7 +79,7 @@ export default function CartSidebar() {
               items.map((item) => (
                 <div key={item.id} className="flex space-x-3">
                   {/* Product Image */}
-                  <div className="w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0">
+                  <div className="w-16 h-18 rounded-md overflow-hidden bg-muted flex-shrink-0">
                     <img
                       src={item.image}
                       alt={item.name}
@@ -89,7 +89,7 @@ export default function CartSidebar() {
                   
                   {/* Product Details */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium text-foreground truncate">
+                    <h3 className="text-lg font-medium text-foreground truncate">
                       {item.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -158,23 +158,23 @@ export default function CartSidebar() {
               {/* Checkout Button */}
               <Button 
                 asChild 
-                className="w-full"
+                className="w-full text-lg"
                 size="lg"
               >
                 <Link to="/checkout" onClick={() => dispatch(setCartOpen(false))}>
-                  Proceed to Checkout
+                  অর্ডার করুন 
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               
               {/* Continue Shopping */}
-              <Button 
+              {/* <Button 
                 variant="outline" 
                 className="w-full"
                 onClick={() => dispatch(setCartOpen(false))}
               >
                 Continue Shopping
-              </Button>
+              </Button> */}
             </div>
           )}
         </div>

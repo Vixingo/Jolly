@@ -142,6 +142,30 @@ export default function Footer() {
               >
                 Products
               </Link>
+              <Link 
+                to="/privacy" 
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Privacy Policy
+              </Link>
+              <Link 
+                to="/terms" 
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Terms of Service
+              </Link>
+              <Link 
+                to="/returns" 
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Return Policy
+              </Link>
+              <Link 
+                to="/shipping" 
+                className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Shipping Policy
+              </Link>
               {activePolicies.map(({ type, label }) => (
                 <button
                   key={type}
