@@ -26,6 +26,7 @@ import {
 } from "../lib/payment-gateways";
 import { handleInvoiceRequest } from "../lib/emailService";
 import { CreditCard, Smartphone } from "lucide-react";
+import enhancedTracking from "../lib/event-tracking";
 
 const checkoutSchema = z.object({
     fullName: z.string().min(2, "Name must be at least 2 characters"),
@@ -78,6 +79,10 @@ export default function CheckoutPage() {
     const [invoiceEmail, setInvoiceEmail] = useState("");
     const formatCurrency = useFormatCurrency();
 
+    // Add delivery charge to total
+    const deliveryCharge = 150;
+    const finalTotal = total + deliveryCharge;
+
     // Load available payment methods
     useEffect(() => {
         const loadPaymentMethods = async () => {
@@ -90,6 +95,25 @@ export default function CheckoutPage() {
         };
         loadPaymentMethods();
     }, []);
+
+    // Track BeginCheckout event when component mounts with items
+    useEffect(() => {
+        if (items.length > 0) {
+            const trackingProducts = items.map(item => ({
+                item_id: item.id,
+                item_name: item.name,
+                item_category: item.category,
+                price: item.price,
+                quantity: item.quantity,
+                currency: 'BDT'
+            }));
+
+            enhancedTracking.beginCheckout(trackingProducts, {
+                currency: 'BDT',
+                value: finalTotal
+            });
+        }
+    }, [items, finalTotal]);
 
     const validateField = (field: keyof CheckoutFormData, value: string) => {
         try {
@@ -106,10 +130,6 @@ export default function CheckoutPage() {
             return false;
         }
     };
-
-    // Add delivery charge to total
-    const deliveryCharge = 150;
-    const finalTotal = total + deliveryCharge;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -193,6 +213,23 @@ export default function CheckoutPage() {
             if (data.invoice_requested && data.invoice_email) {
                 await handleInvoiceRequest(data.id);
             }
+
+            // Track Purchase event for COD orders
+            const trackingProducts = items.map(item => ({
+                item_id: item.id,
+                item_name: item.name,
+                item_category: item.category,
+                price: item.price,
+                quantity: item.quantity,
+                currency: 'BDT'
+            }));
+
+            enhancedTracking.purchase(data.id, trackingProducts, {
+                currency: 'BDT',
+                value: finalTotal,
+                transaction_id: data.id,
+                payment_type: selectedPaymentMethod
+            });
 
             // Clear the cart after successful order placement
             dispatch(clearCart());

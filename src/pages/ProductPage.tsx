@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/carousel";
 import WhatsAppButton from "../components/support/WhatsAppButton";
 import { supabase } from "@/lib/supabase";
+import enhancedTracking from "@/lib/event-tracking";
 
 export default function ProductPage() {
     const { id } = useParams();
@@ -30,6 +31,20 @@ export default function ProductPage() {
     useEffect(() => {
         fetchProduct();
     }, [id]);
+
+    // Track ViewContent event when product is loaded
+    useEffect(() => {
+        if (product) {
+            enhancedTracking.viewContent({
+                item_id: product.id,
+                item_name: product.name,
+                item_category: product.category,
+                price: product.price,
+                quantity: 1,
+                currency: 'BDT'
+            });
+        }
+    }, []);
 
     const fetchProduct = async () => {
         if (!id) return;
@@ -69,6 +84,16 @@ export default function ProductPage() {
             })
         );
 
+        // Track AddToCart event
+        enhancedTracking.addToCart({
+            item_id: product.id,
+            item_name: product.name,
+            item_category: product.category,
+            price: product.price,
+            quantity: 1,
+            currency: 'BDT'
+        });
+
         toast.success("Added to cart", {
             position: "top-center",
             className: "w-fit text-sm py-2 px-3",
@@ -89,6 +114,16 @@ export default function ProductPage() {
                 category: product.category,
             })
         );
+
+        // Track AddToCart event for Buy Now
+        enhancedTracking.addToCart({
+            item_id: product.id,
+            item_name: product.name,
+            item_category: product.category,
+            price: product.price,
+            quantity: 1,
+            currency: 'BDT'
+        });
 
         toast.success("অর্ডার কনফার্ম করুন ", {  
             position: "top-right",
