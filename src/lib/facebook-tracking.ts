@@ -222,20 +222,20 @@ export async function trackPageView(
     return sendFacebookEvent(eventData);
 }
 
-// Track product view event (DEPRECATED - no longer used for CAPI)
-export async function trackViewContent(
-    productId: string,
-    productName: string,
-    category: string,
-    value: number,
-    currency: string = "USD",
-    userInfo?: Parameters<typeof getUserData>[0]
-): Promise<boolean> {
-    // This function is deprecated and no longer sends events to CAPI
-    // ViewContent events are now handled only via Facebook Pixel
-    console.warn('trackViewContent is deprecated - ViewContent events are now Pixel-only');
-    return true;
-}
+// // Track product view event (DEPRECATED - no longer used for CAPI)
+// export async function trackViewContent(
+//     productId: string,
+//     productName: string,
+//     category: string,
+//     value: number,
+//     currency: string = "USD",
+//     userInfo?: Parameters<typeof getUserData>[0]
+// ): Promise<boolean> {
+//     // This function is deprecated and no longer sends events to CAPI
+//     // ViewContent events are now handled only via Facebook Pixel
+//     console.warn('trackViewContent is deprecated - ViewContent events are now Pixel-only');
+//     return true;
+// }
 
 // Track add to cart event
 export async function trackAddToCart(

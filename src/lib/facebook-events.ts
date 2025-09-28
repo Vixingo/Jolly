@@ -33,12 +33,12 @@ export interface ProductTrackingInfo {
 // Track view content event (Pixel only - no CAPI)
 export const trackProductView = async (
     product: ProductTrackingInfo,
-    userInfo?: UserTrackingInfo,
+    _userInfo?: UserTrackingInfo,
     currency: string = "USD"
 ) => {
     // Track via Facebook Pixel only
-    if (window.fbq) {
-        window.fbq("track", "ViewContent", {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "ViewContent", {
             content_ids: [product.id],
             content_type: "product",
             content_name: product.name,
@@ -66,8 +66,8 @@ export const trackProductAddToCart = async (
     ];
 
     // Track via Facebook Pixel
-    if (window.fbq) {
-        window.fbq("track", "AddToCart", {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "AddToCart", {
             content_ids: [product.id],
             content_type: "product",
             content_name: product.name,
@@ -117,8 +117,8 @@ export const trackCheckoutStart = async (
     }));
 
     // Track via Facebook Pixel
-    if (window.fbq) {
-        window.fbq("track", "InitiateCheckout", {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "InitiateCheckout", {
             content_ids: contentIds,
             content_type: "product",
             content_name: contentName,
@@ -168,8 +168,8 @@ export const trackOrderComplete = async (
     }));
 
     // Track via Facebook Pixel
-    if (window.fbq) {
-        window.fbq("track", "Purchase", {
+    if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "Purchase", {
             content_ids: contentIds,
             content_type: "product",
             content_name: contentName,
@@ -201,7 +201,7 @@ export const trackContactEvent = async (
     currency: string = "USD"
 ) => {
     // Track via Facebook Pixel
-    if (window.fbq) {
+    if (typeof window !== "undefined" && (window as any).fbq) {
         const eventParams: Record<string, any> = {};
 
         if (value) {
@@ -209,7 +209,7 @@ export const trackContactEvent = async (
             eventParams.currency = currency;
         }
 
-        window.fbq("track", "Contact", eventParams);
+        (window as any).fbq("track", "Contact", eventParams);
     }
 
     // Track via Conversion API

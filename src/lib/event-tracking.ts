@@ -96,7 +96,8 @@ function pushToDataLayer(event: string, parameters: any = {}) {
 export async function trackViewContent(
     product: TrackingProduct,
     userInfo?: TrackingUser,
-    customParams?: Record<string, any>
+    _customParams: Record<string, any> = {}
+
 ) {
     try {
         // GTM/GA4 tracking

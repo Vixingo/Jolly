@@ -4,7 +4,7 @@
  */
 
 import { initializeGTM } from './gtm-tracking';
-import { initFacebookPixel } from '../components/FacebookPixel';
+import { initFacebookPixel } from '../components/FacebookPixel';  
 
 // Global flags to track initialization
 let isTrackingInitialized = false;
