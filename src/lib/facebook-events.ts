@@ -2,7 +2,6 @@
 // Centralizes both Facebook Pixel and Conversion API tracking
 
 import {
-    trackViewContent,
     trackAddToCart,
     trackInitiateCheckout,
     trackPurchase,
@@ -31,13 +30,13 @@ export interface ProductTrackingInfo {
     quantity: number;
 }
 
-// Track view content event (both Pixel and Conversion API)
+// Track view content event (Pixel only - no CAPI)
 export const trackProductView = async (
     product: ProductTrackingInfo,
     userInfo?: UserTrackingInfo,
     currency: string = "USD"
 ) => {
-    // Track via Facebook Pixel
+    // Track via Facebook Pixel only
     if (window.fbq) {
         window.fbq("track", "ViewContent", {
             content_ids: [product.id],
@@ -49,15 +48,7 @@ export const trackProductView = async (
         });
     }
 
-    // Track via Conversion API
-    await trackViewContent(
-        product.id,
-        product.name,
-        product.category || "",
-        product.price,
-        currency,
-        userInfo
-    );
+    // CAPI tracking removed for ViewContent events as requested
 };
 
 // Track add to cart event (both Pixel and Conversion API)

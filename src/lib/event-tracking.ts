@@ -95,52 +95,33 @@ function pushToDataLayer(event: string, parameters: any = {}) {
 // 1. VIEW CONTENT / VIEW ITEM
 export async function trackViewContent(
     product: TrackingProduct,
-    user?: TrackingUser,
+    userInfo?: TrackingUser,
     customParams?: Record<string, any>
 ) {
-    // Ensure tracking is initialized for important events
-    if (!isTrackingReady()) {
-        await forceInitializeTracking();
-    }
+    try {
+        // GTM/GA4 tracking
+        gtmTrackViewItem(
+            product.item_id,
+            product.item_name,
+            product.item_category || '',
+            product.price,
+            product.currency || 'USD'
+        );
 
-    const currency = product.currency || 'USD';
-    
-    // Push to dataLayer for GTM
-    const success = pushToDataLayer('view_item', {
-        currency,
-        value: product.price,
-        items: [product],
-        user_data: user,
-        ...customParams
-    });
-    
-    // Also trigger existing tracking systems
-    if (success) {
-        try {
-            // Facebook tracking
-            await trackProductView({
-                id: product.item_id,
-                name: product.item_name,
-                category: product.item_category,
-                price: product.price,
-                quantity: 1
-            }, user, currency);
-            
-            // GTM/GA4 tracking
-            gtmTrackViewItem(
-                product.item_id,
-                product.item_name,
-                product.item_category || '',
-                product.price,
-                currency,
-                product.item_brand
-            );
-        } catch (error) {
-            console.error('Error in additional tracking systems:', error);
-        }
+        // Facebook Pixel only (no CAPI for ViewContent)
+        await trackProductView({
+            id: product.item_id,
+            name: product.item_name,
+            category: product.item_category,
+            price: product.price,
+            quantity: product.quantity || 1
+        }, userInfo, product.currency || 'USD');
+
+        return true;
+    } catch (error) {
+        console.error('Error tracking view content:', error);
+        return false;
     }
-    
-    return success;
 }
 
 // 2. ADD TO CART

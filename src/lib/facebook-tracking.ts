@@ -6,7 +6,7 @@ import { supabase } from "./supabase";
 // Facebook Conversion API event types
 export type FacebookEventType =
     | "PageView"
-    | "ViewContent"
+    | "ViewContent" // Keep for backward compatibility but deprecated
     | "AddToCart"
     | "InitiateCheckout"
     | "Purchase"
@@ -222,7 +222,7 @@ export async function trackPageView(
     return sendFacebookEvent(eventData);
 }
 
-// Track product view event
+// Track product view event (DEPRECATED - no longer used for CAPI)
 export async function trackViewContent(
     productId: string,
     productName: string,
@@ -231,25 +231,10 @@ export async function trackViewContent(
     currency: string = "USD",
     userInfo?: Parameters<typeof getUserData>[0]
 ): Promise<boolean> {
-    const eventData: FacebookEventData = {
-        event_name: "ViewContent",
-        event_time: Math.floor(Date.now() / 1000),
-        event_id: generateEventId(),
-        user_data: getUserData(userInfo),
-        custom_data: {
-            currency,
-            value,
-            content_ids: [productId],
-            content_type: "product",
-            content_name: productName,
-            content_category: category,
-        },
-        event_source_url:
-            typeof window !== "undefined" ? window.location.href : undefined,
-        action_source: "website",
-    };
-
-    return sendFacebookEvent(eventData);
+    // This function is deprecated and no longer sends events to CAPI
+    // ViewContent events are now handled only via Facebook Pixel
+    console.warn('trackViewContent is deprecated - ViewContent events are now Pixel-only');
+    return true;
 }
 
 // Track add to cart event

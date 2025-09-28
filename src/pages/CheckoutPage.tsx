@@ -96,7 +96,7 @@ export default function CheckoutPage() {
         loadPaymentMethods();
     }, []);
 
-    // Track BeginCheckout event when component mounts with items
+    // Track BeginCheckout event when component mounts with items (only once)
     useEffect(() => {
         if (items.length > 0) {
             const trackingProducts = items.map(item => ({
@@ -113,7 +113,7 @@ export default function CheckoutPage() {
                 value: finalTotal
             });
         }
-    }, [items, finalTotal]);
+    }, [items.length > 0]); // Only trigger when items are first loaded
 
     const validateField = (field: keyof CheckoutFormData, value: string) => {
         try {
