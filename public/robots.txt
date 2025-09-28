@@ -1,0 +1,44 @@
+User-agent: *
+
+# Allow crawling of main public pages
+Allow: /
+Allow: /products
+Allow: /product/
+Allow: /login
+Allow: /signup
+Allow: /track-order
+Allow: /privacy
+Allow: /terms
+Allow: /returns
+Allow: /shipping
+
+# Disallow admin areas and sensitive pages
+Disallow: /admin/
+Disallow: /checkout
+Disallow: /thank-you
+Disallow: /payment-success
+Disallow: /payment-failed
+
+# Disallow common files that shouldn't be indexed
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /api/
+Disallow: /_redirects
+
+# Allow access to static assets
+Allow: /assets/
+Allow: /images/
+Allow: *.css
+Allow: *.js
+Allow: *.png
+Allow: *.jpg
+Allow: *.jpeg
+Allow: *.gif
+Allow: *.svg
+Allow: *.ico
+
+# Sitemap location
+Sitemap: https://noninursery.com/sitemap.xml
+
+# Crawl delay (optional - adjust based on server capacity)
+Crawl-delay: 1

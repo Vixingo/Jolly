@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Main Pages -->
+  <url>
+    <loc>https://noninursery.com/</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/products</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Authentication Pages -->
+  <!-- <url>
+    <loc>https://noninursery.com/login</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/signup</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+   -->
+  <!-- Shopping Pages -->
+  <url>
+    <loc>https://noninursery.com/checkout</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/thank-you</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/payment-success</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/payment-failed</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
+  <!-- Customer Service Pages -->
+  <url>
+    <loc>https://noninursery.com/track-order</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Policy Pages -->
+  <url>
+    <loc>https://noninursery.com/privacy</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/terms</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/returns</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <url>
+    <loc>https://noninursery.com/shipping</loc>
+    <lastmod>2024-01-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <!-- Note: Admin routes (/admin/*) are excluded from sitemap as they should not be indexed by search engines -->
+  <!-- Note: Dynamic product pages (/product/:id) should be generated dynamically based on your product database -->
+</urlset>
