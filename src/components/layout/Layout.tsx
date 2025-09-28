@@ -3,11 +3,11 @@ import { useEffect, Suspense, lazy } from 'react'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { setTheme } from '../../store/slices/uiSlice'
 import Header from './Header'
-import CartSidebar from '../cart/CartSidebar'
-import MobileMenu from './MobileMenu'
 
-// Lazy load SearchModal
+// Lazy load heavy components for better performance
 const SearchModal = lazy(() => import('../search/SearchModal'))
+const CartSidebar = lazy(() => import('../cart/CartSidebar'))
+const MobileMenu = lazy(() => import('./MobileMenu'))
 
 export default function Layout() {
   const dispatch = useAppDispatch()
@@ -43,11 +43,15 @@ export default function Layout() {
       <main className="pt-16">
         <Outlet />
       </main>
-      <CartSidebar />
+      <Suspense fallback={null}>
+        <CartSidebar />
+      </Suspense>
       <Suspense fallback={null}>
         <SearchModal />
       </Suspense>
-      <MobileMenu />
+      <Suspense fallback={null}>
+        <MobileMenu />
+      </Suspense>
     </div>
   )
 }
