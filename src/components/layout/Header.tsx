@@ -134,6 +134,7 @@ export default function Header() {
               size="sm"
               onClick={() => dispatch(toggleCart())}
               className="relative"
+              aria-label="Toggle cart"
             >
               <ShoppingCart className="h-4 w-4" />
               {itemCount > 0 && (
@@ -197,7 +198,8 @@ export default function Header() {
               variant="ghost"
               size="sm"
               onClick={() => dispatch(toggleMobileMenu())}
-              className="md:hidden"
+              className="md:hidden" 
+              aria-label="Toggle mobile menu"
             >
               <Menu className="h-4 w-4" />
             </Button>
