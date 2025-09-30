@@ -4,7 +4,7 @@ import {
   useStoreLogo, 
   useStoreContact, 
   useStoreSocialLinks, 
-  useStorePolicies,
+  // useStorePolicies,
   useStoreSettings
 } from '../../contexts/StoreSettingsContext'
 import { 
@@ -28,7 +28,7 @@ export default function Footer() {
   const { storeSettings } = useStoreSettings()
   const contact = useStoreContact()
   const socialLinks = useStoreSocialLinks()
-  const policies = useStorePolicies()
+  // const policies = useStorePolicies()
 
   const currentYear = new Date().getFullYear()
 
@@ -49,13 +49,13 @@ export default function Footer() {
       Icon: socialIcons[platform as keyof typeof socialIcons]
     }))
 
-  const activePolicies = Object.entries(policies)
-    .filter(([_, content]) => content && content.trim() !== '')
-    .map(([type, content]) => ({
-      type,
-      content,
-      label: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-    }))
+  // const activePolicies = Object.entries(policies)
+  //   .filter(([_, content]) => content && content.trim() !== '')
+  //   .map(([type, content]) => ({
+  //     type,
+  //     content,
+  //     label: type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  //   }))
 
   return (
     <footer className="bg-muted/30 border-t mt-16">
@@ -166,7 +166,7 @@ export default function Footer() {
               >
                 Shipping Policy
               </Link>
-              {activePolicies.map(({ type, label }) => (
+              {/* {activePolicies.map(({ type, label }) => (
                 <button
                   key={type}
                   className="block text-sm text-muted-foreground hover:text-foreground transition-colors text-left"
@@ -177,7 +177,7 @@ export default function Footer() {
                 >
                   {label}
                 </button>
-              ))}
+              ))} */}
             </div>
           </div>
 

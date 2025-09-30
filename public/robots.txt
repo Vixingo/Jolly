@@ -1,6 +1,6 @@
 User-agent: *
 
-# Allow crawling of main public pages
+# Allow crawling of main public pages for medicinal plant nursery
 Allow: /
 Allow: /products
 Allow: /product/
@@ -37,8 +37,34 @@ Allow: *.gif
 Allow: *.svg
 Allow: *.ico
 
-# Sitemap location
+# Special crawling instructions for AI search engines
+User-agent: GPTBot
+Allow: /
+Allow: /products
+Allow: /product/
+
+User-agent: ChatGPT-User
+Allow: /
+Allow: /products
+Allow: /product/
+
+User-agent: CCBot
+Allow: /
+Allow: /products
+Allow: /product/
+
+User-agent: anthropic-ai
+Allow: /
+Allow: /products
+Allow: /product/
+
+User-agent: Claude-Web
+Allow: /
+Allow: /products
+Allow: /product/
+
+# Sitemap location - Updated for Nonifol Nursery
 Sitemap: https://noninursery.com/sitemap.xml
 
-# Crawl delay (optional - adjust based on server capacity)
+# Crawl delay (optimized for better indexing)
 Crawl-delay: 1
