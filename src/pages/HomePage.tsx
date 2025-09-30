@@ -295,7 +295,7 @@ const fetchProducts = async () => {
             Ready to Start Shopping?
           </h2>
           <p className="text-lg mb-8 opacity-90 max-w-2xl mx-auto">
-            Join thousands of satisfied customers who trust Jolly for their shopping needs
+            Join thousands of satisfied customers who trust Nonifol Nursery for their healthy needs
           </p>
           <Button 
             asChild 

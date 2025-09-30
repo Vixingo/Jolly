@@ -76,7 +76,7 @@ export function useStoreSettings() {
 // Helper hooks for common store settings
 export function useStoreName() {
   const { storeSettings } = useStoreSettings()
-  return storeSettings?.store_name || 'Jolly Store'
+  return storeSettings?.store_name || 'Nonifol Nursery'
 }
 
 export function useStoreLogo() {
