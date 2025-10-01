@@ -25,6 +25,7 @@ export interface Database {
           name: string
           description: string
           price: number
+          offer_price?: number
           images: string[]
           category: string
           stock: number

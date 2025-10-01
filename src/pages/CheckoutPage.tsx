@@ -77,6 +77,7 @@ export default function CheckoutPage() {
     const [isProcessingPayment, setIsProcessingPayment] = useState(false);
     const [needInvoice, setNeedInvoice] = useState(false);
     const [invoiceEmail, setInvoiceEmail] = useState("");
+  
     const formatCurrency = useFormatCurrency();
 
     // Add delivery charge to total
@@ -96,9 +97,12 @@ export default function CheckoutPage() {
         loadPaymentMethods();
     }, []);
 
-    // Track BeginCheckout event when component mounts with items (only once)
+    // Track BeginCheckout event only once per session
     useEffect(() => {
-        if (items.length > 0) {
+        // Use sessionStorage to track if checkout has been tracked in this session
+        const checkoutTracked = sessionStorage.getItem('checkoutTracked');
+        
+        if (items.length > 0 && !checkoutTracked) {
             const trackingProducts = items.map(item => ({
                 item_id: item.id,
                 item_name: item.name,
@@ -112,8 +116,12 @@ export default function CheckoutPage() {
                 currency: 'BDT',
                 value: finalTotal
             });
+            
+            // Mark as tracked in session storage
+            sessionStorage.setItem('checkoutTracked', 'true');
+           
         }
-    }, [items.length > 0]); // Only trigger when items are first loaded
+    }, []);
 
     const validateField = (field: keyof CheckoutFormData, value: string) => {
         try {

@@ -26,15 +26,16 @@ export default function ProductPage() {
     const dispatch = useAppDispatch();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
+    const [hasTrackedView, setHasTrackedView] = useState(false);
     const formatCurrency = useFormatCurrency();
 
     useEffect(() => {
         fetchProduct();
     }, [id]);
 
-    // Track ViewContent event when product is loaded
+    // Track ViewContent event when product is loaded (only once)
     useEffect(() => {
-        if (product) {
+        if (product && !hasTrackedView) {
             enhancedTracking.viewContent({
                 item_id: product.id,
                 item_name: product.name,
@@ -43,8 +44,9 @@ export default function ProductPage() {
                 quantity: 1,
                 currency: 'BDT'
             });
+            setHasTrackedView(true);
         }
-    }, []);
+    }, [product, hasTrackedView]);
 
     const fetchProduct = async () => {
         if (!id) return;
@@ -169,6 +171,28 @@ export default function ProductPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
+            {/* Schema.org Product microdata */}
+            <div 
+                itemScope 
+                itemType="https://schema.org/Product"
+                className="hidden"
+            >
+                <meta itemProp="productID" content={product.id} />
+                <meta itemProp="name" content={product.name} />
+                <meta itemProp="description" content={product.description} />
+                <meta itemProp="image" content={product.images[0]} />
+                <meta itemProp="category" content={product.category} />
+                <div itemProp="brand" itemScope itemType="https://schema.org/Brand">
+                    <meta itemProp="name" content={(product as any).brand || ''} />
+                </div>
+                <div itemProp="offers" itemScope itemType="https://schema.org/Offer">
+                    <meta itemProp="price" content={String(product.offer_price || product.price)} />
+                    <meta itemProp="priceCurrency" content="BDT" />
+                    <meta itemProp="availability" content={product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"} />
+                    <meta itemProp="url" content={window.location.href} />
+                </div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Replace the existing image gallery with carousel */}
                 <div className="relative overflow-hidden rounded-lg bg-background">
@@ -206,9 +230,20 @@ export default function ProductPage() {
                         <h1 className="text-3xl font-bold mb-2">
                             {product.name}
                         </h1>
-                        <p className="text-2xl font-semibold text-primary mb-4">
-                            {formatCurrency(product.price)}
-                        </p>
+                        {product.offer_price ? (
+                            <div className="mb-4">
+                                <p className="text-2xl font-semibold text-primary">
+                                    {formatCurrency(product.offer_price)}
+                                </p>
+                                <p className="text-lg line-through text-muted-foreground">
+                                    {formatCurrency(product.price)}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-2xl font-semibold text-primary mb-4">
+                                {formatCurrency(product.price)}
+                            </p>
+                        )}
                         <p className="text-muted-foreground">
                             {product.description}
                         </p>

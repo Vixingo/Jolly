@@ -210,9 +210,20 @@ export default function ProductsPage() {
                             <p className="text-muted-foreground text-sm mb-3 line-clamp-2">
                                 {truncateText(product.description, 100)}
                             </p>
-                            <span className="text-2xl font-bold text-primary">
-                                {formatCurrency(product.price)}
-                            </span>
+                            {product.offer_price ? (
+                                <div>
+                                    <span className="text-2xl font-bold text-primary block">
+                                        {formatCurrency(product.offer_price)}
+                                    </span>
+                                    <span className="text-sm line-through text-muted-foreground">
+                                        {formatCurrency(product.price)}
+                                    </span>
+                                </div>
+                            ) : (
+                                <span className="text-2xl font-bold text-primary">
+                                    {formatCurrency(product.price)}
+                                </span>
+                            )}
                         </CardContent>
 
                         <CardFooter className="p-4 pt-0">
