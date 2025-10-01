@@ -217,7 +217,7 @@ export default function Footer() {
             © {currentYear} {storeName}. All rights reserved.
           </div>
           <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <span>Powered by Jolly E-commerce</span>
+            <span>Powered by Vixingo Store</span>
           </div>
         </div>
       </div>
