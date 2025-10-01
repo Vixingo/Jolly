@@ -383,6 +383,7 @@ export default function CheckoutPage() {
                                         }`}
                                         placeholder="আপনার নাম"
                                         autoFocus
+                                        required 
                                     />
                                 </div>
 
@@ -396,6 +397,7 @@ export default function CheckoutPage() {
 
                                     <Input
                                         id="phoneNumber"
+                                        required 
                                         type="tel"
                                         value={formData.phoneNumber}
                                         onChange={(e) => {
